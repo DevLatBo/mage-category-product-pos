@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Devlat\CategoryProductPos\Console\Command\ProductPosition">
+        <arguments>
+            <argument name="name" xsi:type="string">devlat:category:position</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="category_product_position" xsi:type="object">
+                    Devlat\CategoryProductPos\Console\Command\ProductPosition
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>
