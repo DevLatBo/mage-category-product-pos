@@ -2,6 +2,8 @@
 
 namespace Devlat\CategoryProductPos\Console\Command;
 
+use Devlat\CategoryProductPos\Model\Service\DataService;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Validation\ValidationException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,6 +18,19 @@ class ProductPosition extends Command
 
     private const POS = 'pos';
     private const MODE = 'mode';
+    /**
+     * @var DataService
+     */
+    private $dataService;
+
+    public function __construct(
+        DataService $dataService,
+        string $name = null
+    )
+    {
+        parent::__construct($name);
+        $this->dataService = $dataService;
+    }
 
     protected function configure()
     {
@@ -50,39 +65,44 @@ class ProductPosition extends Command
         parent::configure();
     }
 
+    /**
+     * @throws ValidationException
+     * @throws LocalizedException
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $requiredInputs = [
-            'category'  =>  $input->getOption(self::CATEGORY),
-            'skus'      =>  $input->getOption(self::SKUS),
-            'pos'       =>  $input->getOption(self::POS)
+        $inputs = [
+            'options' => array(
+                'category'  =>  $input->getOption(self::CATEGORY),
+                'skus'      =>  $input->getOption(self::SKUS),
+                'positions' =>  $input->getOption(self::POS),
+            ),
+            'arguments' => array(
+                'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'ASC' ?? false
+            ),
         ];
-        $validInputs = $this->checkInputs($requiredInputs);
-        if (!$validInputs) {
+        [$valid, $inputs]     =   $this->dataService->checkInputs($inputs);
+
+        if (!$valid) {
             throw new ValidationException(
-                __("The data: category, skus and pos are required values, please check your inputs.")
+                __("Category, Skus and Pos are required and Pos must be a numeric value, please check again.")
             );
         }
 
-        $category = $requiredInputs['category'];
-        print_r($requiredInputs);
-        echo $input->getArgument('mode');
+        $category       =   $inputs['options']['category'];
+        $skus           =   $inputs['options']['skus'];
+        $newPosition    =   $inputs['options']['positions'];
+
+        $categoryId = $this->dataService->getCategoryId($category);
+        if (is_null($categoryId)) {
+            throw new ValidationException(
+                __("There is no category found according to the category: {$category}")
+            );
+        }
+
 
 
         $output->writeln("<info>Setting products position in {$category} is done.</info>");
     }
 
-    /**
-     * @param array $inputs
-     * @return bool
-     */
-    private function checkInputs(array $inputs): bool
-    {
-        $flag = false;
-        $emptyCounter = array_sum(array_map(function($element) { return empty($element);}, $inputs));
-        if ($emptyCounter === 0) {
-            $flag = true;
-        }
-        return $flag;
-    }
 }
