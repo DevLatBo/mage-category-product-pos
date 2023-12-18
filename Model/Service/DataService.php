@@ -2,8 +2,12 @@
 
 namespace Devlat\CategoryProductPos\Model\Service;
 
-use Magento\Catalog\Model\Category;
+use Magento\Catalog\Model\Category as CategoryModel;
+use Magento\Catalog\Model\CategoryRepository;
+use Magento\Catalog\Model\ProductRepository;
+use Magento\Catalog\Model\ResourceModel\Category;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class DataService
 {
@@ -11,12 +15,30 @@ class DataService
      * @var CategoryCollectionFactory
      */
     private $categoryCollectionFactory;
+    /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+    /**
+     * @var CategoryRepository
+     */
+    private $categoryRepository;
+    /**
+     * @var Category
+     */
+    private $category;
 
     public function __construct(
-        CategoryCollectionFactory $categoryCollectionFactory
+        ProductRepository $productRepository,
+        CategoryRepository $categoryRepository,
+        CategoryCollectionFactory $categoryCollectionFactory,
+        Category $category
     )
     {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
+        $this->category = $category;
     }
 
     /**
@@ -48,14 +70,28 @@ class DataService
         return [$flag, $inputs];
     }
 
-    public function moveProductPosition(int $categoryId, string $skus, int $newPos, bool $mode): void
+    public function moveProductPosition(int $categoryId, string $skus, int $newPos): void
     {
         $skus = preg_replace('/\s+/', '', $skus);
         $skuList = explode(",", $skus);
         foreach ($skuList as $sku) {
+            try {
+                $product = $this->productRepository->get($sku);
+                $productId = $product->getId();
+                /** @var CategoryModel $category */
+                $category = $this->categoryRepository->get($categoryId);
+
+                $productsCategory = $product->getCategoryIds();
+                if (!in_array($categoryId, $productsCategory)) {
+                    continue;
+                }
+                $this->setProductPosition($productId, $category, $newPos);
+
+            } catch (NoSuchEntityException $e) {
+                throw new NoSuchEntityException(__($e->getMessage()));
+            }
 
         }
-        print_r($skuList);
     }
 
     /**
@@ -65,7 +101,6 @@ class DataService
      */
     public function getCategoryId(string $name): ?int {
         $categoryId = null;
-echo $name;
         $collection = $this->categoryCollectionFactory->create()
             ->addAttributeToFilter('name', $name)
             ->setPageSize(1)
@@ -77,4 +112,24 @@ echo $name;
         return $categoryId;
     }
 
+    private function setProductPosition(int $productId, CategoryModel $category, int $newPos) {
+        $productsPositions = $category->getProductsPosition();
+        asort($productsPositions);
+        $flag = false;
+        foreach ($productsPositions as $prodId => $position) {
+            if ($prodId === $productId) {
+                $productsPositions[$productId] += $newPos;
+                $flag = true;
+            }
+            if ($flag) {
+                continue;
+            }
+        }
+        try{
+            $category->setData('posted_products', $productsPositions);
+            $this->category->save($category);
+        } catch (\Exception $e) {
+            throw new \Exception(__("Product Position not updated in cateogry: {$category->getName()}"));
+        }
+    }
 }

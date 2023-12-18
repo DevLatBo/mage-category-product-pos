@@ -78,11 +78,10 @@ class ProductPosition extends Command
                 'positions' =>  $input->getOption(self::POS),
             ),
             'arguments' => array(
-                'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'ASC' ?? false
+                'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'DESC' ?? false
             ),
         ];
-        [$valid, $inputs]     =   $this->dataService->checkInputs($inputs);
-
+        [$valid, $inputs]   =   $this->dataService->checkInputs($inputs);
         if (!$valid) {
             throw new ValidationException(
                 __("Category, Skus and Pos are required and Pos must be a numeric value, please check again.")
@@ -90,18 +89,16 @@ class ProductPosition extends Command
         }
 
         $category       =   $inputs['options']['category'];
-        $skus           =   $inputs['options']['skus'];
-        $newPosition    =   $inputs['options']['positions'];
-
         $categoryId = $this->dataService->getCategoryId($category);
         if (is_null($categoryId)) {
             throw new ValidationException(
                 __("There is no category found according to the category: {$category}")
             );
         }
+        $skus           =   $inputs['options']['skus'];
+        $newPositions   =   $inputs['options']['positions'];
 
-
-
+        $this->dataService->moveProductPosition($categoryId, $skus, $newPositions);
         $output->writeln("<info>Setting products position in {$category} is done.</info>");
     }
 
