@@ -14,20 +14,26 @@ class DataService
     /**
      * @var CategoryCollectionFactory
      */
-    private $categoryCollectionFactory;
+    private CategoryCollectionFactory $categoryCollectionFactory;
     /**
      * @var ProductRepository
      */
-    private $productRepository;
+    private ProductRepository $productRepository;
     /**
      * @var CategoryRepository
      */
-    private $categoryRepository;
+    private CategoryRepository $categoryRepository;
     /**
      * @var Category
      */
-    private $category;
+    private Category $category;
 
+    /**
+     * @param ProductRepository $productRepository
+     * @param CategoryRepository $categoryRepository
+     * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @param Category $category
+     */
     public function __construct(
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
@@ -43,7 +49,7 @@ class DataService
 
     /**
      * @param array $inputs
-     * @return bool
+     * @return array
      */
     public function checkInputs(array $inputs): array
     {
@@ -70,6 +76,13 @@ class DataService
         return [$flag, $inputs];
     }
 
+    /**
+     * @param int $categoryId
+     * @param string $skus
+     * @param int $newPos
+     * @return void
+     * @throws NoSuchEntityException
+     */
     public function moveProductPosition(int $categoryId, string $skus, int $newPos): void
     {
         $skus = preg_replace('/\s+/', '', $skus);
@@ -112,6 +125,13 @@ class DataService
         return $categoryId;
     }
 
+    /**
+     * @param int $productId
+     * @param CategoryModel $category
+     * @param int $newPos
+     * @return void
+     * @throws \Exception
+     */
     private function setProductPosition(int $productId, CategoryModel $category, int $newPos) {
         $productsPositions = $category->getProductsPosition();
         asort($productsPositions);
@@ -129,7 +149,7 @@ class DataService
             $category->setData('posted_products', $productsPositions);
             $this->category->save($category);
         } catch (\Exception $e) {
-            throw new \Exception(__("Product Position not updated in cateogry: {$category->getName()}"));
+            throw new \Exception(__("Product Position not updated in category: {$category->getName()}"));
         }
     }
 }

@@ -15,14 +15,17 @@ class ProductPosition extends Command
 {
     private const SKUS = 'skus';
     private const CATEGORY = 'category';
-
     private const POS = 'pos';
     private const MODE = 'mode';
     /**
      * @var DataService
      */
-    private $dataService;
+    private DataService $dataService;
 
+    /**
+     * @param DataService $dataService
+     * @param string|null $name
+     */
     public function __construct(
         DataService $dataService,
         string $name = null
@@ -32,6 +35,9 @@ class ProductPosition extends Command
         $this->dataService = $dataService;
     }
 
+    /**
+     * @return void
+     */
     protected function configure()
     {
         $this->setName('devlat:category:position');
