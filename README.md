@@ -30,6 +30,8 @@ Puede descargarla en la página oficial de [Adobe Commerce](https://business.ado
 Este proyecto consiste en un módulo para el framework Magento2 para ordenar un(os) producto(s) de una categoria en específico por su posicion para la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico pueda hacer cambios de manera mas sencilla y rápida.
 Este módulo fue desarrollado creando un custom CLI Command para poder ejecutar la funcionalidad del que estamos apuntando que es cambio de posición de un producto dentro de una categoría para el Product List Page (PLP).
 
+---
+
 ### Versiones
 * Magento 2.4.4 (Open Source).
 * Composer: 1.9.3.
