@@ -104,7 +104,11 @@ class ProductPosition extends Command
         $skus           =   $inputs['options']['skus'];
         $newPositions   =   $inputs['options']['positions'];
 
-        $this->dataService->moveProductPosition($categoryId, $skus, $newPositions);
+        [$notValid, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
+        foreach($notValid as $sku) {
+            $output->writeln("<comment>Sku: {$sku} was not found in {$category}</comment>");
+        }
+        $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
         $output->writeln("<info>Setting products position in {$category} is done.</info>");
     }
 

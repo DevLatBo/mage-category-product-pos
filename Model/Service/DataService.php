@@ -76,17 +76,36 @@ class DataService
         return [$flag, $inputs];
     }
 
-    /**
-     * @param int $categoryId
-     * @param string $skus
-     * @param int $newPos
-     * @return void
-     * @throws NoSuchEntityException
-     */
-    public function moveProductPosition(int $categoryId, string $skus, int $newPos): void
+    public function validProductInCategory(int $categoryId, string $skus): array
     {
+        $notValid = [];
         $skus = preg_replace('/\s+/', '', $skus);
         $skuList = explode(",", $skus);
+        foreach ($skuList as $key => $sku) {
+            try {
+                $product = $this->productRepository->get($sku);
+                $productsCategory = $product->getCategoryIds();
+                if(!in_array($categoryId, $productsCategory)) {
+                    $notValid[] = $sku;
+                    unset($skuList[$key]);
+                }
+            } catch (NoSuchEntityException $e) {
+                throw new NoSuchEntityException(__($e->getMessage()));
+            }
+        }
+        return [$notValid, $skuList];
+
+    }
+
+    /**
+     * @param int $categoryId
+     * @param array $skuList
+     * @param int $newPos
+     * @return array
+     * @throws \Exception
+     */
+    public function moveProductPosition(int $categoryId, array $skuList, int $newPos): void
+    {
         foreach ($skuList as $sku) {
             try {
                 $product = $this->productRepository->get($sku);
@@ -94,14 +113,10 @@ class DataService
                 /** @var CategoryModel $category */
                 $category = $this->categoryRepository->get($categoryId);
 
-                $productsCategory = $product->getCategoryIds();
-                if (!in_array($categoryId, $productsCategory)) {
-                    continue;
-                }
                 $this->setProductPosition($productId, $category, $newPos);
 
-            } catch (NoSuchEntityException $e) {
-                throw new NoSuchEntityException(__($e->getMessage()));
+            } catch (\Exception $e) {
+                throw new \Exception(__($e->getMessage()));
             }
 
         }
@@ -132,7 +147,8 @@ class DataService
      * @return void
      * @throws \Exception
      */
-    private function setProductPosition(int $productId, CategoryModel $category, int $newPos) {
+    private function setProductPosition(int $productId, CategoryModel $category, int $newPos): void
+    {
         $productsPositions = $category->getProductsPosition();
         $numberOfProducts = $category->getProductCount();
         $asc = ($newPos < 0) ?? false;
