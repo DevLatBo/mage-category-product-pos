@@ -134,17 +134,45 @@ class DataService
      */
     private function setProductPosition(int $productId, CategoryModel $category, int $newPos) {
         $productsPositions = $category->getProductsPosition();
-        asort($productsPositions);
+        $numberOfProducts = $category->getProductCount();
+        $asc = ($newPos < 0) ?? false;
         $flag = false;
+        asort($productsPositions);
+
+        $auxPos = $productsPositions[$productId] + $newPos;
+        if (!$asc) {
+            $productsPositions[$productId] = ($auxPos >= $numberOfProducts) ? $numberOfProducts - 1 : $auxPos;
+        }
+        if ($asc) {
+            $productsPositions[$productId] = ($auxPos < 0) ? 0 : $auxPos;
+        }
+
         foreach ($productsPositions as $prodId => $position) {
-            if ($prodId === $productId) {
-                $productsPositions[$productId] += $newPos;
-                $flag = true;
+            if ($asc) {
+                if ($prodId === $productId) {
+                    break;
+                }
+                if ($position == $productsPositions[$productId]) {
+                    $flag = true;
+                }
+                if ($flag) {
+                    $productsPositions[$prodId]++;
+                }
             }
-            if ($flag) {
-                continue;
+            else {
+                if($prodId === $productId) {
+                    $flag = true;
+                    continue;
+                }
+                if ($flag) {
+                    if($position == $productsPositions[$productId]) {
+                        $flag = false;
+                    }
+                    $productsPositions[$prodId]--;
+                }
             }
         }
+
         try{
             $category->setData('posted_products', $productsPositions);
             $this->category->save($category);
