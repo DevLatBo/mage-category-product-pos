@@ -77,6 +77,7 @@ class ProductPosition extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // TODO: Create a method helper for mapping the input values
         $inputs = [
             'options' => array(
                 'category'  =>  $input->getOption(self::CATEGORY),
@@ -109,6 +110,7 @@ class ProductPosition extends Command
             $output->writeln("<comment>Sku: {$sku} was not found in {$category}</comment>");
         }
         $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
+
         $output->writeln("<info>Setting products position in {$category} is done.</info>");
     }
 

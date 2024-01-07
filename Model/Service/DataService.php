@@ -2,6 +2,7 @@
 
 namespace Devlat\CategoryProductPos\Model\Service;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Category as CategoryModel;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
@@ -104,22 +105,26 @@ class DataService
      * @return array
      * @throws \Exception
      */
-    public function moveProductPosition(int $categoryId, array $skuList, int $newPos): void
+    public function moveProductPosition(int $categoryId, array $skuList, int $newPos): array
     {
+        $productsMoved = array();
         foreach ($skuList as $sku) {
             try {
                 $product = $this->productRepository->get($sku);
-                $productId = $product->getId();
                 /** @var CategoryModel $category */
                 $category = $this->categoryRepository->get($categoryId);
 
-                $this->setProductPosition($productId, $category, $newPos);
+                $productsMoved[] = array(
+                    'sku'   =>  $product->getSku(),
+                    'pos'   =>  $this->setProductPos($product, $category, $newPos),
+                );
 
             } catch (\Exception $e) {
                 throw new \Exception(__($e->getMessage()));
             }
 
         }
+        return $productsMoved;
     }
 
     /**
@@ -141,20 +146,20 @@ class DataService
     }
 
     /**
-     * @param int $productId
+     * @param ProductInterface $product
      * @param CategoryModel $category
      * @param int $newPos
      * @return void
      * @throws \Exception
      */
-    private function setProductPosition(int $productId, CategoryModel $category, int $newPos): void
+    private function setProductPos(ProductInterface $product, CategoryModel $category, int $newPos): int
     {
+        $productId = intval($product->getId());
         $productsPositions = $category->getProductsPosition();
         $numberOfProducts = $category->getProductCount();
         $asc = ($newPos < 0) ?? false;
         $flag = false;
         asort($productsPositions);
-
         $auxPos = $productsPositions[$productId] + $newPos;
         if (!$asc) {
             $productsPositions[$productId] = ($auxPos >= $numberOfProducts) ? $numberOfProducts - 1 : $auxPos;
@@ -162,7 +167,7 @@ class DataService
         if ($asc) {
             $productsPositions[$productId] = ($auxPos < 0) ? 0 : $auxPos;
         }
-
+        // This will organize the other products positions.
         foreach ($productsPositions as $prodId => $position) {
             if ($asc) {
                 if ($prodId === $productId) {
@@ -188,12 +193,13 @@ class DataService
                 }
             }
         }
-
         try{
             $category->setData('posted_products', $productsPositions);
             $this->category->save($category);
         } catch (\Exception $e) {
             throw new \Exception(__("Product Position not updated in category: {$category->getName()}"));
         }
+
+        return $productsPositions[$productId];
     }
 }
