@@ -79,7 +79,7 @@ class DataService
 
     public function validProductInCategory(int $categoryId, string $skus): array
     {
-        $notValid = [];
+        $productsNotMoved = [];
         $skus = preg_replace('/\s+/', '', $skus);
         $skuList = explode(",", $skus);
         foreach ($skuList as $key => $sku) {
@@ -87,14 +87,16 @@ class DataService
                 $product = $this->productRepository->get($sku);
                 $productsCategory = $product->getCategoryIds();
                 if(!in_array($categoryId, $productsCategory)) {
-                    $notValid[] = $sku;
+                    $productsNotMoved[] = array(
+                        'sku' => $sku
+                    );
                     unset($skuList[$key]);
                 }
             } catch (NoSuchEntityException $e) {
                 throw new NoSuchEntityException(__($e->getMessage()));
             }
         }
-        return [$notValid, $skuList];
+        return [$productsNotMoved, $skuList];
 
     }
 
@@ -108,22 +110,22 @@ class DataService
     public function moveProductPosition(int $categoryId, array $skuList, int $newPos): array
     {
         $productsMoved = array();
-        foreach ($skuList as $sku) {
-            try {
-                $product = $this->productRepository->get($sku);
-                /** @var CategoryModel $category */
-                $category = $this->categoryRepository->get($categoryId);
-
-                $productsMoved[] = array(
-                    'sku'   =>  $product->getSku(),
-                    'pos'   =>  $this->setProductPos($product, $category, $newPos),
-                );
-
-            } catch (\Exception $e) {
-                throw new \Exception(__($e->getMessage()));
+        try {
+            /** @var CategoryModel $category */
+            $category = $this->categoryRepository->get($categoryId);
+            foreach ($skuList as $sku) {
+                    $product = $this->productRepository->get($sku);
+                    $productsMoved[$product->getId()] = array(
+                        'id'    =>  $product->getId(),
+                        'sku'   =>  $product->getSku(),
+                        'pos'   =>  $this->setProductPos($product, $category, $newPos)
+                    );
             }
-
+        } catch (\Exception $e) {
+            throw new \Exception(__($e->getMessage()));
         }
+
+
         return $productsMoved;
     }
 
@@ -167,6 +169,7 @@ class DataService
         if ($asc) {
             $productsPositions[$productId] = ($auxPos < 0) ? 0 : $auxPos;
         }
+
         // This will organize the other products positions.
         foreach ($productsPositions as $prodId => $position) {
             if ($asc) {

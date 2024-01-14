@@ -32,6 +32,7 @@ class ProductPosition implements ResolverInterface
     )
     {
         // TODO: Create a method helper for mapping input values.
+        // Mapping input data and validation.
         $inputs = $args['input'];
         if(!isset($inputs['mode'])) {
             $inputs['mode'] = '';
@@ -53,22 +54,23 @@ class ProductPosition implements ResolverInterface
             );
         }
 
+        // Validation of category.
         $category       =   $inputs['options']['category'];
         $categoryId = $this->dataService->getCategoryId($category);
-
         if (is_null($categoryId)) {
             throw new ValidationException(
                 __("There is no category found according to the category: {$category}")
             );
         }
+
         $skus           =   $inputs['options']['skus'];
         $newPositions   =   $inputs['options']['positions'];
-
-        [$notValid, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
+        [$notMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
         $productsPosition = $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
         return [
-            'category'  =>  $args['input']['category'],
-            'products'  =>  $productsPosition
+            'category'  =>  $category,
+            'moved'     =>  $productsPosition,
+            'notMoved'  =>  $notMoved
         ];
 
     }
