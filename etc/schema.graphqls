@@ -18,7 +18,7 @@ type ProductsPositionResponse {
 }
 
 type ProductsPosition {
-    id: Int @doc(description: "Id of the product.")
+    id: Int! @doc(description: "Id of the product.")
     sku: String! @doc(description: "Sku of the product.")
     pos: Int @doc(description: "New position of the product")
 }

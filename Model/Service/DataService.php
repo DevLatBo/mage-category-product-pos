@@ -88,7 +88,8 @@ class DataService
                 $productsCategory = $product->getCategoryIds();
                 if(!in_array($categoryId, $productsCategory)) {
                     $productsNotMoved[] = array(
-                        'sku' => $sku
+                        'id'    =>  $product->getId(),
+                        'sku'   =>  $sku
                     );
                     unset($skuList[$key]);
                 }

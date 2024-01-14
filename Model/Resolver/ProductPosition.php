@@ -65,12 +65,12 @@ class ProductPosition implements ResolverInterface
 
         $skus           =   $inputs['options']['skus'];
         $newPositions   =   $inputs['options']['positions'];
-        [$notMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
-        $productsPosition = $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
+        [$productsNotMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
+        $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
         return [
             'category'  =>  $category,
-            'moved'     =>  $productsPosition,
-            'notMoved'  =>  $notMoved
+            'moved'     =>  $productsMoved,
+            'notMoved'  =>  $productsNotMoved
         ];
 
     }

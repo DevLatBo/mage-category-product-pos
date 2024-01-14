@@ -78,6 +78,7 @@ class ProductPosition extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // TODO: Create a method helper for mapping the input values
+        // Mapping data and validation.
         $inputs = [
             'options' => array(
                 'category'  =>  $input->getOption(self::CATEGORY),
@@ -95,6 +96,7 @@ class ProductPosition extends Command
             );
         }
 
+        // Validation of category.
         $category       =   $inputs['options']['category'];
         $categoryId = $this->dataService->getCategoryId($category);
         if (is_null($categoryId)) {
@@ -102,16 +104,19 @@ class ProductPosition extends Command
                 __("There is no category found according to the category: {$category}")
             );
         }
+
         $skus           =   $inputs['options']['skus'];
         $newPositions   =   $inputs['options']['positions'];
-
-        [$notValid, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
-        foreach($notValid as $sku) {
-            $output->writeln("<comment>Sku: {$sku} was not found in {$category}</comment>");
+        [$productsNotMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
+        foreach($productsNotMoved as $product => $data) {
+            $output->writeln("<comment>Sku: {$data['sku']} with ID: {$data['id']} was not found in {$category}</comment>");
         }
-        $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
+        $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
+        foreach($productsMoved as $product => $data) {
+            $output->writeln("<comment>The product with SKU: {$data['sku']} with ID: {$data['id']} is in position {$data['pos']}</comment>");
+        }
 
-        $output->writeln("<info>Setting products position in {$category} is done.</info>");
+        $output->writeln("<info>Setting products position(s) in {$category} is done.</info>");
     }
 
 }
