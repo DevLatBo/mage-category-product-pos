@@ -16,7 +16,7 @@ class ProductPosition extends Command
 {
     private const SKUS = 'skus';
     private const CATEGORY = 'category';
-    private const POS = 'pos';
+    private const JUMP = 'jump';
     private const MODE = 'mode';
     /**
      * @var DataService
@@ -60,10 +60,10 @@ class ProductPosition extends Command
                 __('Product(s) in order to change the position.')
             ),
             new InputOption(
-                self::POS,
-                'p',
+                self::JUMP,
+                'j',
                 InputOption::VALUE_REQUIRED,
-                __('Set the position of the product.')
+                __('Set the position of the product by jumping.')
             ),
             new InputArgument(
                 self::MODE,
@@ -81,20 +81,14 @@ class ProductPosition extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // TODO: Create a method helper for mapping the input values
-        // Mapping data and validation.
-        $inputs = [
-            'options' => array(
-                'category'  =>  $input->getOption(self::CATEGORY),
-                'skus'      =>  $input->getOption(self::SKUS),
-                'positions' =>  $input->getOption(self::POS),
-            ),
-            'arguments' => array(
-                'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'DESC' ?? false
-            ),
-        ];
-        //[$valid, $inputs]   =   $this->dataService->checkInputs($inputs);
-        [$valid, $inputs] = $this->validator->checkInputs($input);
+        // Input data validation.
+        $inputs = array(
+            'category'  =>  $input->getOption(self::CATEGORY),
+            'skus'      =>  $input->getOption(self::SKUS),
+            'jump'      =>  $input->getOption(self::JUMP),
+            'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'DESC' ? 'DESC' : 'ASC'
+        );
+        [$valid, $inputs] = $this->validator->checkInputs($inputs);
         if (!$valid) {
             throw new ValidationException(
                 __("Category, Skus and Pos are required and Pos must be a numeric value, please check again.")
@@ -102,7 +96,7 @@ class ProductPosition extends Command
         }
 
         // Validation of category.
-        $category       =   $inputs['options']['category'];
+        $category       =   $inputs['category'];
         $categoryId = $this->dataService->getCategoryId($category);
         if (is_null($categoryId)) {
             throw new ValidationException(
@@ -110,8 +104,8 @@ class ProductPosition extends Command
             );
         }
 
-        $skus           =   $inputs['options']['skus'];
-        $newPositions   =   $inputs['options']['positions'];
+        $skus           =   $inputs['skus'];
+        $newPositions   =   $inputs['jump'];
         [$productsNotMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
         foreach($productsNotMoved as $product => $data) {
             $output->writeln("<comment>Sku: {$data['sku']} with ID: {$data['id']} was not found in {$category}</comment>");

@@ -37,7 +37,7 @@ class ProductPosition implements ResolverInterface
     {
         // Input data validation.
         $inputs = $args['input'];
-        $inputs['mode'] = !isset($inputs['mode']) ? 'ASC' : strtoupper($inputs['mode']);
+        $inputs['mode'] = strtoupper($inputs['mode'] === 'DESC') ? 'DESC' : 'ASC';
         [$valid, $inputs] = $this->validator->checkInputs($inputs);
         if(!$valid) {
             throw new ValidationException(

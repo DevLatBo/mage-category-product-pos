@@ -48,35 +48,6 @@ class DataService
         $this->category = $category;
     }
 
-    /**
-     * @param array $inputs
-     * @return array
-     */
-    /*public function checkInputs(array $inputs): array
-    {
-        $flag = false;
-        // Counts how many inputs are empty.
-        $emptyCounter = array_sum(array_map(function($element) { return empty($element);}, $inputs['options']));
-        if ($emptyCounter === 0) {
-            $flag = true;
-        }
-
-        // Change the positions sign based on the mode value.
-        if ($flag) {
-            $positions = $inputs['options']['positions'];
-            $isNum = is_numeric($positions) ?? false;
-            if($isNum) {
-                $positions = intval($positions);
-                if (!$inputs['arguments']['mode']) {
-                    $positions *= -1;
-                }
-            }
-            $inputs['options']['positions'] = $positions;
-            $flag = $isNum;
-        }
-        return [$flag, $inputs];
-    }*/
-
     public function validProductInCategory(int $categoryId, string $skus): array
     {
         $productsNotMoved = [];
