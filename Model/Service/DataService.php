@@ -52,7 +52,7 @@ class DataService
      * @param array $inputs
      * @return array
      */
-    public function checkInputs(array $inputs): array
+    /*public function checkInputs(array $inputs): array
     {
         $flag = false;
         // Counts how many inputs are empty.
@@ -75,7 +75,7 @@ class DataService
             $flag = $isNum;
         }
         return [$flag, $inputs];
-    }
+    }*/
 
     public function validProductInCategory(int $categoryId, string $skus): array
     {

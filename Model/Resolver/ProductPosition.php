@@ -3,6 +3,7 @@
 namespace Devlat\CategoryProductPos\Model\Resolver;
 
 use Devlat\CategoryProductPos\Model\Service\DataService;
+use Devlat\CategoryProductPos\Model\Validator;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -15,12 +16,15 @@ class ProductPosition implements ResolverInterface
      * @var DataService
      */
     private DataService $dataService;
+    private Validator $validator;
 
     public function __construct(
-        DataService $dataService
+        DataService $dataService,
+        Validator $validator
     )
     {
         $this->dataService = $dataService;
+        $this->validator = $validator;
     }
 
     public function resolve(
@@ -31,23 +35,10 @@ class ProductPosition implements ResolverInterface
         array $args = null
     )
     {
-        // TODO: Create a method helper for mapping input values.
-        // Mapping input data and validation.
+        // Input data validation.
         $inputs = $args['input'];
-        if(!isset($inputs['mode'])) {
-            $inputs['mode'] = '';
-        }
-        $data = array (
-            'options' => array(
-                'category' => $inputs['category'],
-                'skus'  =>  $inputs['skus'],
-                'positions' => $inputs['positions']
-            ),
-            'arguments' => array(
-                'mode'  =>  strtoupper($inputs['mode']) === 'DESC' ?? false
-            )
-        );
-        [$valid , $inputs] = $this->dataService->checkInputs($data);
+        $inputs['mode'] = !isset($inputs['mode']) ? 'ASC' : strtoupper($inputs['mode']);
+        [$valid, $inputs] = $this->validator->checkInputs($inputs);
         if(!$valid) {
             throw new ValidationException(
                 __("Category, Skus and Pos are required and Pos must be a numeric value, please check again.")
@@ -55,18 +46,18 @@ class ProductPosition implements ResolverInterface
         }
 
         // Validation of category.
-        $category       =   $inputs['options']['category'];
+        $category       =   $inputs['category'];
         $categoryId = $this->dataService->getCategoryId($category);
         if (is_null($categoryId)) {
             throw new ValidationException(
                 __("There is no category found according to the category: {$category}")
             );
         }
-
-        $skus           =   $inputs['options']['skus'];
-        $newPositions   =   $inputs['options']['positions'];
+        $skus               =   $inputs['skus'];
         [$productsNotMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
-        $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
+
+        $jumpPositions    =   $inputs['jump'];
+        $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $jumpPositions);
         return [
             'category'  =>  $category,
             'moved'     =>  $productsMoved,

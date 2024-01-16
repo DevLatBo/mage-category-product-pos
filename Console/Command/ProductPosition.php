@@ -3,6 +3,7 @@
 namespace Devlat\CategoryProductPos\Console\Command;
 
 use Devlat\CategoryProductPos\Model\Service\DataService;
+use Devlat\CategoryProductPos\Model\Validator;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Validation\ValidationException;
 use Symfony\Component\Console\Command\Command;
@@ -21,6 +22,7 @@ class ProductPosition extends Command
      * @var DataService
      */
     private DataService $dataService;
+    private Validator $validator;
 
     /**
      * @param DataService $dataService
@@ -28,11 +30,13 @@ class ProductPosition extends Command
      */
     public function __construct(
         DataService $dataService,
+        Validator $validator,
         string $name = null
     )
     {
         parent::__construct($name);
         $this->dataService = $dataService;
+        $this->validator = $validator;
     }
 
     /**
@@ -89,7 +93,8 @@ class ProductPosition extends Command
                 'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'DESC' ?? false
             ),
         ];
-        [$valid, $inputs]   =   $this->dataService->checkInputs($inputs);
+        //[$valid, $inputs]   =   $this->dataService->checkInputs($inputs);
+        [$valid, $inputs] = $this->validator->checkInputs($input);
         if (!$valid) {
             throw new ValidationException(
                 __("Category, Skus and Pos are required and Pos must be a numeric value, please check again.")

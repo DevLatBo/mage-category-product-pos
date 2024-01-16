@@ -8,7 +8,7 @@ type Mutation {
 input ProductsCategoryInput {
     category: String! @doc(description: "Category of the product.")
     skus: String! @doc(description: "Sku(s) in which we are going to change its position")
-    positions: Int! @doc(description: "Position in which we are going to increase or decrease.")
+    jump: Int! @doc(description: "Position in which we are going to increase or decrease.")
     mode: String @doc(description: "Defines if we are going to ascend or descend the product position.")
 }
 type ProductsPositionResponse {
