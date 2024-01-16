@@ -54,7 +54,7 @@ class ProductPosition implements ResolverInterface
             );
         }
         $skus               =   $inputs['skus'];
-        [$productsNotMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
+        [$productsNotMoved, $skuList] = $this->validator->checkProductInCategory($categoryId, $skus);
 
         $jumpPositions    =   $inputs['jump'];
         $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $jumpPositions);

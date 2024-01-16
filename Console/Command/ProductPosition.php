@@ -106,7 +106,7 @@ class ProductPosition extends Command
 
         $skus           =   $inputs['skus'];
         $newPositions   =   $inputs['jump'];
-        [$productsNotMoved, $skuList] = $this->dataService->validProductInCategory($categoryId, $skus);
+        [$productsNotMoved, $skuList] = $this->validator->checkProductInCategory($categoryId, $skus);
         foreach($productsNotMoved as $product => $data) {
             $output->writeln("<comment>Sku: {$data['sku']} with ID: {$data['id']} was not found in {$category}</comment>");
         }

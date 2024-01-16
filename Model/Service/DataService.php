@@ -48,30 +48,6 @@ class DataService
         $this->category = $category;
     }
 
-    public function validProductInCategory(int $categoryId, string $skus): array
-    {
-        $productsNotMoved = [];
-        $skus = preg_replace('/\s+/', '', $skus);
-        $skuList = explode(",", $skus);
-        foreach ($skuList as $key => $sku) {
-            try {
-                $product = $this->productRepository->get($sku);
-                $productsCategory = $product->getCategoryIds();
-                if(!in_array($categoryId, $productsCategory)) {
-                    $productsNotMoved[] = array(
-                        'id'    =>  $product->getId(),
-                        'sku'   =>  $sku
-                    );
-                    unset($skuList[$key]);
-                }
-            } catch (NoSuchEntityException $e) {
-                throw new NoSuchEntityException(__($e->getMessage()));
-            }
-        }
-        return [$productsNotMoved, $skuList];
-
-    }
-
     /**
      * @param int $categoryId
      * @param array $skuList
