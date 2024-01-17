@@ -12,8 +12,8 @@ Si existen dudas, observaciones, errores encontrados, ir a Issues y hacer el rep
   * [Versiones](#versiones)
   * [Instalar](#instalar)
   * [Funcionamiento](#funcionamiento)
-    *[CLI Command](#cli-command)
-    *[GraphQl](#graphql) 
+    * [CLI Command](#cli-command)
+    * [GraphQl](#graphql) 
 * [Dudas o Preguntas](#dudas-o-preguntas)
 ---
 
