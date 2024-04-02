@@ -4,10 +4,10 @@ namespace Devlat\CategoryProductPos\Model;
 
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Validation\ValidationException;
 
 class Validator
 {
-
     /**
      * @var ProductRepository
      */
@@ -27,6 +27,7 @@ class Validator
      * Validates the input data.
      * @param array $inputs
      * @return array
+     * @throws ValidationException
      */
     public function checkInputs(array $inputs): array
     {
@@ -50,7 +51,12 @@ class Validator
             $inputs['jump'] = $positions;
             $flag = $isNum;
         }
-        return [$flag, $inputs];
+        if (!$flag) {
+            throw new ValidationException(
+                __("Category, Skus and Pos are required and the jump data has to be a numeric value, please check again.")
+            );
+        }
+        return $inputs;
     }
 
     /**

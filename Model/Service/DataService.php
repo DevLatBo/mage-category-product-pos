@@ -8,7 +8,7 @@ use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Catalog\Model\ResourceModel\Category;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Validation\ValidationException;
 
 class DataService
 {
@@ -51,11 +51,11 @@ class DataService
     /**
      * @param int $categoryId
      * @param array $skuList
-     * @param int $newPos
+     * @param int $jump
      * @return array
      * @throws \Exception
      */
-    public function moveProductPosition(int $categoryId, array $skuList, int $newPos): array
+    public function moveProductPosition(int $categoryId, array $skuList, int $jump): array
     {
         $productsMoved = array();
         try {
@@ -66,7 +66,7 @@ class DataService
                     $productsMoved[$product->getId()] = array(
                         'id'    =>  $product->getId(),
                         'sku'   =>  $product->getSku(),
-                        'pos'   =>  $this->setProductPos($product, $category, $newPos)
+                        'pos'   =>  $this->setProductPos($product, $category, $jump)
                     );
             }
         } catch (\Exception $e) {
@@ -92,6 +92,11 @@ class DataService
         if (!empty($collection)) {
            $categoryId = $collection['entity_id'];
         }
+        if (is_null($categoryId)) {
+            throw new ValidationException(
+                __("There is no category found according to the category: {$name}")
+            );
+        }
         return $categoryId;
     }
 
@@ -102,15 +107,15 @@ class DataService
      * @return void
      * @throws \Exception
      */
-    private function setProductPos(ProductInterface $product, CategoryModel $category, int $newPos): int
+    private function setProductPos(ProductInterface $product, CategoryModel $category, int $jump): int
     {
         $productId = intval($product->getId());
         $productsPositions = $category->getProductsPosition();
         $numberOfProducts = $category->getProductCount();
-        $asc = ($newPos < 0) ?? false;
+        $asc = ($jump < 0) ?? false;
         $flag = false;
         asort($productsPositions);
-        $auxPos = $productsPositions[$productId] + $newPos;
+        $auxPos = $productsPositions[$productId] + $jump;
         if (!$asc) {
             $productsPositions[$productId] = ($auxPos >= $numberOfProducts) ? $numberOfProducts - 1 : $auxPos;
         }

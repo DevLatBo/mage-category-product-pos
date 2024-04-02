@@ -7,11 +7,9 @@ use Devlat\CategoryProductPos\Model\Validator;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Magento\Framework\Validation\ValidationException;
 
 class ProductPosition implements ResolverInterface
 {
-
     /**
      * @var DataService
      */
@@ -37,24 +35,15 @@ class ProductPosition implements ResolverInterface
     {
         // Input data validation.
         $inputs = $args['input'];
-        $inputs['mode'] = strtoupper($inputs['mode'] === 'DESC') ? 'DESC' : 'ASC';
-        [$valid, $inputs] = $this->validator->checkInputs($inputs);
-        if(!$valid) {
-            throw new ValidationException(
-                __("Category, Skus and Pos are required and Pos must be a numeric value, please check again.")
-            );
-        }
+        $inputs['mode'] = strtoupper($inputs['mode']) === 'DESC' ? 'DESC' : 'ASC';
+        $inputs = $this->validator->checkInputs($inputs);
 
         // Validation of category.
         $category       =   $inputs['category'];
         $categoryId = $this->dataService->getCategoryId($category);
-        if (is_null($categoryId)) {
-            throw new ValidationException(
-                __("There is no category found according to the category: {$category}")
-            );
-        }
-        $skus               =   $inputs['skus'];
-        [$productsNotMoved, $skuList] = $this->validator->checkProductInCategory($categoryId, $skus);
+
+        $skus                           =   $inputs['skus'];
+        [$productsNotMoved, $skuList]   =   $this->validator->checkProductInCategory($categoryId, $skus);
 
         $jumpPositions    =   $inputs['jump'];
         $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $jumpPositions);

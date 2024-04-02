@@ -88,21 +88,11 @@ class ProductPosition extends Command
             'jump'      =>  $input->getOption(self::JUMP),
             'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'DESC' ? 'DESC' : 'ASC'
         );
-        [$valid, $inputs] = $this->validator->checkInputs($inputs);
-        if (!$valid) {
-            throw new ValidationException(
-                __("Category, Skus and Pos are required and Pos must be a numeric value, please check again.")
-            );
-        }
+        $inputs = $this->validator->checkInputs($inputs);
 
         // Validation of category.
-        $category       =   $inputs['category'];
-        $categoryId = $this->dataService->getCategoryId($category);
-        if (is_null($categoryId)) {
-            throw new ValidationException(
-                __("There is no category found according to the category: {$category}")
-            );
-        }
+        $category   =   $inputs['category'];
+        $categoryId =   $this->dataService->getCategoryId($category);
 
         $skus           =   $inputs['skus'];
         $newPositions   =   $inputs['jump'];
@@ -117,5 +107,4 @@ class ProductPosition extends Command
 
         $output->writeln("<info>Setting products position(s) in {$category} is done.</info>");
     }
-
 }
