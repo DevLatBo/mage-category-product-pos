@@ -1,8 +1,8 @@
 # Módulo CategoryProductPos en Magento2.
 
-Este es un proyecto trabajado por el **Ing. Oscar Rolando Gamboa Acho** con el fin de aportar a otros developers en el desarrollo de sus proyectos por medio de la orientacion en base a lo trabajado y facilitar el desarrollo de nuevos módulos y/o sistemas completos.
+Este es un proyecto trabajado por el **Ing. Oscar Rolando Gamboa Acho** con el fin de aportar a otros developers en el desarrollo de nuevos módulos y/o sistemas completos para sus proyectos.
 
-Si existen dudas, observaciones, errores encontrados, ir a Issues y hacer el reporte de algun detalle para trabajarlo y poder mejorar el modulo que se encuentra trabajado en este repositorio. :nerd_face:
+Si existen dudas, observaciones, errores encontrados, ir a Issues y hacer el reporte sobre algun detalle para corregir y poder mejorar el módulo que se encuentra en este repositorio. :nerd_face:
 
 ---
 
@@ -23,13 +23,13 @@ Es una plataforma de comercio electrónico open source o código liberado median
 Magento permite construir una tienda online a medida. Es una herramienta que cuenta con determinadas funcionalidades y de código abierto.
 
 En un principio, surgió en 2007, y se lanzó al mercado como solución de comercio electrónico. Ahora cuenta con más funcionalidades, y varias versiones en función de las necesidades o el volumen de cada comercio online.
-Puede descargarla en la página oficial de [Adobe Commerce](https://business.adobe.com/la/products/magento/open-source.html).
+Puede descargarla en la página oficial de [Adobe Commerce](https://business.adobe.com/la/products/magento/open-source.html) o descargarlo por una version en específica en [Github](https://github.com/magento/magento2).
 
 ---
 
 ## Proyecto
 
-Este proyecto consiste en un módulo para el framework Magento2 para ordenar un(os) producto(s) de una categoría en específico por su posición para la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico para pueda hacer cambios de manera mas sencilla y rápida.
+Este proyecto consiste en un módulo para ordenar un(os) producto(s) de una categoría en específico por su posición para la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico y realizar el cambio de manera mas sencilla y rápida.
 La tarea de cambiar posición de un producto dentro de una categoría puede realizarse de dos formas ya sea por medio del uso de un CLI Command o por medio de GraphQl y así ver el cambio dentro del Product List Page (PLP).
 
 ---
@@ -55,12 +55,12 @@ Luego para instalar el proyecto dentro del framework realiza los siguientes paso
 Tenemos dos formas para poder trabajar con este módulo para el salto de posiciones del producto dentro de una categoría.
 
 ### CLI Command
-Para esto debes tomar en cuenta lo siguiente que necesitamos:
-* Debes declarar para que categoria hay que aplicar el cambio de posición de un producto, opta por el nombre del producto.
+Para esto debes tomar en cuenta lo siguiente:
+* Debes declarar para que categoria hay que aplicar el cambio de posición de un producto, inserta el nombre de la categoria.
 * Puedes declarar un producto o mas de un producto para aplicar el cambio de posición, solo se toma el(los) sku(s).
-* Declara por cuantas posiciones debe recorrer el producto, si sera ASCENDENTE o DESCENTENTE.
-* Es opcional el parametro mode, pero es en base al modo, ya que en base al anterior punto. Tomar encuenta solo palabras DESC, ASC.
-Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerira de estos datos que hemos memcionado en los anteriores puntos, vea los siguientes ejemplos:
+* Declara por cuantas posiciones debe recorrer el producto, aca lo consideramos como salto (jump).
+* Es opcional el parametro mode, pero es en base al modo. Tomar encuenta solo palabras DESC, ASC.
+Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerirá de estos datos que hemos memcionados anteriormente, vea los siguientes ejemplos:
 
 * `bin/magento devlat:category:position -c "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 ASC`
 * `bin/magento devlat:category:position --category "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 DESC`
@@ -106,14 +106,14 @@ Tome en cuenta de que "mode" es una variable o entrada **OPCIONAL**, si no es to
     "data": {
         "setProductPosition": {
             "category": "Categoria A",
-            "moved": [
+            "jumped": [
                 {
                     "id": 2084,
                     "sku": "prod-c",
                     "pos": 1
                 }
             ],
-            "notMoved": [
+            "notJumped": [
                 {
                     "sku": "prod-f"
                 },
@@ -125,7 +125,7 @@ Tome en cuenta de que "mode" es una variable o entrada **OPCIONAL**, si no es to
     }
 }
 ```
-Dentro de setProductPosition tenemos los nodos **category**, que es el nombre de la categoria en el cual el producto esta, **moved** es nodo que contiene el producto o los productos del cual cambiaron de posición. Es acá donde tenemos la nueva posición del producto a parte de id y sku del mismo y otro nodo que es notMoved es el nodo que hace referencia a productos que no estan incluidos en esa categoria, solo se despliega el sku de los mismos.
+Dentro de setProductPosition tenemos los nodos **category**, que es el nombre de la categoria en el cual el producto esta, **jumped** es nodo que contiene el producto o los productos del cual cambiaron y se tiene una nueva posición del producto y otro nodo que es **notJumpled** es el nodo que hace referencia a productos que no cambiaron de posicion debido a que no estan incluidos en la categoria.
 
 ---
 
