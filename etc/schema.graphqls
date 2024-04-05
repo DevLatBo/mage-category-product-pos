@@ -13,8 +13,8 @@ input ProductsCategoryInput {
 }
 type ProductsPositionResponse {
     category: String! @doc(description: "Category in which has been the product position has changed.")
-    moved: [ProductsPosition] @doc(description: "Product in which position has been updated.")
-    notMoved: [ProductsPosition] @doc(description: "Products not moved because they belonged to another category.")
+    jumped: [ProductsPosition] @doc(description: "Product in which position has been updated.")
+    notJumped: [ProductsPosition] @doc(description: "Products not moved because they belonged to another category.")
 }
 
 type ProductsPosition {

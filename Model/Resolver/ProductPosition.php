@@ -49,8 +49,8 @@ class ProductPosition implements ResolverInterface
         $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $jumpPositions);
         return [
             'category'  =>  $category,
-            'moved'     =>  $productsMoved,
-            'notMoved'  =>  $productsNotMoved
+            'jumped'     =>  $productsMoved,
+            'notJumped'  =>  $productsNotMoved
         ];
 
     }
