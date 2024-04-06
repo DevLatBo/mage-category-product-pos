@@ -2,12 +2,14 @@
 
 namespace Devlat\CategoryProductPos\Model\Service;
 
+use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Category as CategoryModel;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Catalog\Model\ResourceModel\Category;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Validation\ValidationException;
 
 class DataService
@@ -53,7 +55,7 @@ class DataService
      * @param array $skuList
      * @param int $jump
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function moveProductPosition(int $categoryId, array $skuList, int $jump): array
     {
@@ -69,8 +71,8 @@ class DataService
                         'pos'   =>  $this->setProductPos($product, $category, $jump)
                     );
             }
-        } catch (\Exception $e) {
-            throw new \Exception(__($e->getMessage()));
+        } catch (Exception $e) {
+            throw new Exception(__($e->getMessage()));
         }
 
 
@@ -80,7 +82,7 @@ class DataService
     /**
      * @param string $name
      * @return int
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function getCategoryId(string $name): ?int {
         $categoryId = null;
@@ -103,9 +105,9 @@ class DataService
     /**
      * @param ProductInterface $product
      * @param CategoryModel $category
-     * @param int $newPos
-     * @return void
-     * @throws \Exception
+     * @param int $jump
+     * @return int
+     * @throws Exception
      */
     private function setProductPos(ProductInterface $product, CategoryModel $category, int $jump): int
     {
@@ -122,7 +124,6 @@ class DataService
         if ($asc) {
             $productsPositions[$productId] = ($auxPos < 0) ? 0 : $auxPos;
         }
-
         // This will organize the other products positions.
         foreach ($productsPositions as $prodId => $position) {
             if ($asc) {
@@ -152,8 +153,8 @@ class DataService
         try{
             $category->setData('posted_products', $productsPositions);
             $this->category->save($category);
-        } catch (\Exception $e) {
-            throw new \Exception(__("Product Position not updated in category: {$category->getName()}"));
+        } catch (Exception $e) {
+            throw new Exception(__("Product Position not updated in category: {$category->getName()}"));
         }
 
         return $productsPositions[$productId];
