@@ -10,6 +10,7 @@ use Magento\Catalog\Model\ProductRepository;
 use Magento\Catalog\Model\ResourceModel\Category;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Validation\ValidationException;
 
 class DataService
@@ -63,20 +64,93 @@ class DataService
         try {
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
-            foreach ($skuList as $sku) {
-                    $product = $this->productRepository->get($sku);
-                    $productsMoved[$product->getId()] = array(
-                        'id'    =>  $product->getId(),
-                        'sku'   =>  $product->getSku(),
-                        'pos'   =>  $this->setProductPos($product, $category, $jump)
-                    );
+            $newProductsPositions = $this->generateNewProductsPos($skuList, $category, $jump);
+            /*foreach ($skuList as $sku) {
+                $product = $this->productRepository->get($sku);
+                $productsList[$product->getId()] = $this->getProductNewPos($product, $productsPositions, $numberOfProducts, $jump);
+                $productsMoved[$product->getId()] = array(
+                    'id'    =>  $product->getId(),
+                    'sku'   =>  $product->getSku(),
+                    'pos'   =>  $this->setProductPos($product, $category, $jump)
+                );
+            }*/
+            $actProductsPositions = $category->getProductsPosition();
+            //$numberOfProducts = $category->getProductCount();
+            asort($actProductsPositions);
+            $asc = false;
+            if($jump < 0) {
+                $actProductsPositions = array_reverse($actProductsPositions, true);
+                $asc = true;
             }
+            print_r($actProductsPositions);
+            foreach ($newProductsPositions as $productId => $position) {
+                if (isset($actProductsPositions[$productId])) {
+                    $actProductsPositions[$productId] = $position;
+                }
+            }
+            $flag = false;
+            $counter = 0;
+            $limit = ($jump < 0) ? $jump * (-1) : $jump;
+            foreach ($actProductsPositions as $productId => $position) {
+                if ($asc) {
+                    if(isset($newProductsPositions[$productId])) {
+                        $flag = true;
+                        continue;
+                    }
+                    if ($flag) {
+                        $actProductsPositions[$productId]++;
+                        $counter++;
+                        if($counter === $limit) break;
+                    }
+                } else {
+                    if(isset($newProductsPositions[$productId])) {
+                        $flag = true;
+                        continue;
+                    }
+                    if ($flag) {
+                        $actProductsPositions[$productId]--;
+                        $counter++;
+                        if($counter === $limit) break;
+                    }
+                }
+            }
+            print_r($newProductsPositions);
+            print_r($actProductsPositions);die;
+
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }
 
 
         return $productsMoved;
+    }
+
+    /**
+     * @param array $skuList
+     * @param CategoryModel $category
+     * @param int $jump
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    private function generateNewProductsPos(array $skuList, CategoryModel $category, int $jump): array
+    {
+        $productsList = array();
+        $productsPositions = $category->getProductsPosition();
+        $numberOfProducts = $category->getProductCount();
+        foreach ($skuList as $sku) {
+            $product = $this->productRepository->get($sku);
+            $productId = $product->getId();
+            $asc = ($jump < 0) ?? false;
+            $productPos = $productsPositions[$productId] + $jump;
+            if (!$asc) {
+                $productPos = ($productPos >= $numberOfProducts) ? $numberOfProducts - 1 : $productPos;
+            }
+            if ($asc) {
+                $productPos = ($productPos < 0) ? 0 : $productPos;
+            }
+            $productsList[$productId] = $productPos;
+        }
+        return $productsList;
     }
 
     /**
@@ -102,6 +176,7 @@ class DataService
         return $categoryId;
     }
 
+
     /**
      * @param ProductInterface $product
      * @param CategoryModel $category
@@ -109,7 +184,7 @@ class DataService
      * @return int
      * @throws Exception
      */
-    private function setProductPos(ProductInterface $product, CategoryModel $category, int $jump): int
+    private function setProductPosBACKUP(ProductInterface $product, CategoryModel $category, int $jump): int
     {
         $productId = intval($product->getId());
         $productsPositions = $category->getProductsPosition();
