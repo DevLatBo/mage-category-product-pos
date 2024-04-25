@@ -90,28 +90,17 @@ class DataService
             }
             $flag = false;
             $counter = 0;
-            $limit = ($jump < 0) ? $jump * (-1) : $jump;
+            $limit = abs($jump);
+            $step = $asc ? 1 : -1;
             foreach ($actProductsPositions as $productId => $position) {
-                if ($asc) {
-                    if(isset($newProductsPositions[$productId])) {
-                        $flag = true;
-                        continue;
-                    }
-                    if ($flag) {
-                        $actProductsPositions[$productId]++;
-                        $counter++;
-                        if($counter === $limit) break;
-                    }
-                } else {
-                    if(isset($newProductsPositions[$productId])) {
-                        $flag = true;
-                        continue;
-                    }
-                    if ($flag) {
-                        $actProductsPositions[$productId]--;
-                        $counter++;
-                        if($counter === $limit) break;
-                    }
+                if(isset($newProductsPositions[$productId])) {
+                    $flag = true;
+                    continue;
+                }
+                if ($flag) {
+                    $actProductsPositions[$productId] += $step;
+                    $counter++;
+                    if($counter === $limit) break;
                 }
             }
             print_r($newProductsPositions);
