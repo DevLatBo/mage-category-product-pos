@@ -92,15 +92,32 @@ class DataService
                     $productsPosition[$productId] = $position;
                 }
             }
-            print_r($productsPosition);
+            //print_r($productsPosition);
             asort($productsPosition);
             if($jump < 0) {
                 $productsPosition = array_reverse($productsPosition, true);
                 $asc = true;
             }
-            print_r($productsPosition);
-
-
+            $flag = false;
+            $counter = 0;
+            $limit = abs($jump);
+            $step = ($jump < 0) ? 1 : -1;
+            /*foreach ($newProductsPositions as $prodId => $pos) {
+                $flag = false;
+                foreach ($productsPosition as $productId => $position) {
+                    if(isset($newProductsPositions[$productId])) {
+                        $flag = true;
+                        continue;
+                    }
+                    if ($flag) {
+                        $productsPosition[$productId] += $step;
+                        $counter++;
+                        if($counter === $limit) break;
+                    }
+                }
+                //$productsPosition = $this->organizeProductsPositions($productsPosition, $jump);
+            }*/
+            print_r($productsPosition);die;
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }
@@ -140,13 +157,14 @@ class DataService
      */
     private function generateNewProductsPos(array $skuList, CategoryModel $category, int $jump): array
     {
-        $productsPositions = $category->getProductsPosition();
+        $productsPositions = $category->getProductsPosition();print_r($productsPositions);
         $numberOfProducts = $category->getProductCount();
         $posAux = -1;
+        // si step es 1 es ASC, caso contrario es DESC (-1).
         $step = $jump < 0 ? 1 : -1;
-        $funcAction = $jump < 0 ? 'max':'min';
+        $funcAction = $step > 0 ? 'max':'min';
         $productsList = array();
-        $asc = ($jump < 0) ?? false;
+        $asc = ($step > 0) ?? false;
         foreach ($skuList as $sku) {
             $product = $this->productRepository->get($sku);
             $productId = $product->getId();
@@ -157,14 +175,15 @@ class DataService
             if ($asc) {
                 $productPos = ($productPos < 0) ? 0 : $productPos;
             }
-
-            if(in_array($productPos, $productsList)) {
-                $posAux = call_user_func_array($funcAction, [$productsList]);
-                $productPos = $posAux + $step;
+            // TODO: Prepare new algorythm for new array product pos.
+            if (in_array($productPos, $productsList)) {
+                $elementVal = call_user_func_array($funcAction, [$productsList]);
+                $productPos = $elementVal + $step;
             }
-
             $productsList[$productId] = $productPos;
         }
+        print_r($productsList);
+        die;
         return $productsList;
     }
 
