@@ -65,6 +65,10 @@ class DataService
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
             $newProductsPositions = $this->generateNewProductsPos($skuList, $category, $jump);
+            print_r($newProductsPositions);
+            $productsPos = $category->getProductsPosition();
+
+            print_r($productsPos);die;
             /*foreach ($skuList as $sku) {
                 $product = $this->productRepository->get($sku);
                 $productsList[$product->getId()] = $this->getProductNewPos($product, $productsPositions, $numberOfProducts, $jump);
@@ -145,8 +149,8 @@ class DataService
     }
 
     /**
-     * This will generate an array of new product pos values,
-     * if there is a position value repeated, it will increase or decrease its value based on jump value.
+     *  This will generate an array of new product pos values,
+     *  if there is a position value repeated, it will increase or decrease its value based on jump value.
      *
      * @param array $skuList
      * @param CategoryModel $category
@@ -158,9 +162,9 @@ class DataService
     {
         $productsPositions = $category->getProductsPosition();
         $numberOfProducts = $category->getProductCount();
-        $posAux = -1;
         // si step es 1 es ASC, caso contrario es DESC (-1).
         $step = $jump < 0 ? 1 : -1;
+
         $productsList = array();
         $asc = ($step > 0) ?? false;
         foreach ($skuList as $sku) {
@@ -175,22 +179,22 @@ class DataService
             }
             $productsList[$productId] = $productPos;
         }
-        $newProductListPos = array();
+
+        $resProductList = array();
         foreach ($productsList as $prodId => $position) {
             $flag = false;
             $pos = $position;
             while (!$flag) {
-                if (in_array($pos, $newProductListPos)) {
+                if (in_array($pos, $resProductList)) {
                     $pos += $step;
                     continue;
                 }
                 $flag = true;
             }
-            $newProductListPos[$prodId] = $pos;
+            $resProductList[$prodId] = $pos;
         }
-        print_r($newProductListPos);
-        $resProductPos = array();
-        return $resProductPos;
+
+        return $resProductList;
     }
 
     /**
