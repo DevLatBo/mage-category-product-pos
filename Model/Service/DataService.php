@@ -136,9 +136,8 @@ class DataService
      */
     private function organizeProductsPositions(array $productsPositions, $jump): array
     {
-        $productPosList = array();
-        asort($productsPositions);
         $productPosList = $productsPositions;
+        asort($productPosList);
         if($jump < 0) {
             $productPosList = array_reverse($productsPositions, true);
         }
@@ -157,12 +156,11 @@ class DataService
      */
     private function generateNewProductsPos(array $skuList, CategoryModel $category, int $jump): array
     {
-        $productsPositions = $category->getProductsPosition();print_r($productsPositions);
+        $productsPositions = $category->getProductsPosition();
         $numberOfProducts = $category->getProductCount();
         $posAux = -1;
         // si step es 1 es ASC, caso contrario es DESC (-1).
         $step = $jump < 0 ? 1 : -1;
-        $funcAction = $step > 0 ? 'max':'min';
         $productsList = array();
         $asc = ($step > 0) ?? false;
         foreach ($skuList as $sku) {
@@ -175,16 +173,24 @@ class DataService
             if ($asc) {
                 $productPos = ($productPos < 0) ? 0 : $productPos;
             }
-            // TODO: Prepare new algorythm for new array product pos.
-            if (in_array($productPos, $productsList)) {
-                $elementVal = call_user_func_array($funcAction, [$productsList]);
-                $productPos = $elementVal + $step;
-            }
             $productsList[$productId] = $productPos;
         }
-        print_r($productsList);
-        die;
-        return $productsList;
+        $newProductListPos = array();
+        foreach ($productsList as $prodId => $position) {
+            $flag = false;
+            $pos = $position;
+            while (!$flag) {
+                if (in_array($pos, $newProductListPos)) {
+                    $pos += $step;
+                    continue;
+                }
+                $flag = true;
+            }
+            $newProductListPos[$prodId] = $pos;
+        }
+        print_r($newProductListPos);
+        $resProductPos = array();
+        return $resProductPos;
     }
 
     /**
