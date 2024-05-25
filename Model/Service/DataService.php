@@ -65,10 +65,8 @@ class DataService
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
             $newProductsPositions = $this->generateNewProductsPos($skuList, $category, $jump);
-            print_r($newProductsPositions);
             $productsPos = $category->getProductsPosition();
 
-            print_r($productsPos);die;
             /*foreach ($skuList as $sku) {
                 $product = $this->productRepository->get($sku);
                 $productsList[$product->getId()] = $this->getProductNewPos($product, $productsPositions, $numberOfProducts, $jump);
@@ -78,50 +76,23 @@ class DataService
                     'pos'   =>  $this->setProductPos($product, $category, $jump)
                 );
             }*/
-            $productsPosition = $category->getProductsPosition();
-            // TODO: Verify the replacement of product position.
-            /*$counter = 0;
-            $limit = abs($jump);
-            $step = ($jump < 0) ? 1 : -1;*/
-            /*asort($productsPosition);
-            if($jump < 0) {
-                $productsPosition = array_reverse($productsPosition, true);
-                $asc = true;
-            }
-            asort($productsPosition);*/
-            print_r($productsPosition);
             print_r($newProductsPositions);
-            foreach ($newProductsPositions as $productId => $position) {
-                if (isset($productsPosition[$productId])) {
-                    $productsPosition[$productId] = $position;
-                }
-            }
-            //print_r($productsPosition);
-            asort($productsPosition);
-            if($jump < 0) {
-                $productsPosition = array_reverse($productsPosition, true);
-                $asc = true;
-            }
-            $flag = false;
-            $counter = 0;
-            $limit = abs($jump);
-            $step = ($jump < 0) ? 1 : -1;
-            /*foreach ($newProductsPositions as $prodId => $pos) {
-                $flag = false;
-                foreach ($productsPosition as $productId => $position) {
-                    if(isset($newProductsPositions[$productId])) {
-                        $flag = true;
-                        continue;
+            print_r($productsPos);
+            // TODO: Verify the replacement of product position.
+            $resProductPositions = array();
+            $pos = 0;
+            foreach ($productsPos as $productId => $position) {
+                if (isset($newProductsPositions[$productId])) {
+                    $resProductPositions[$productId] = $newProductsPositions[$productId];
+                    if ($pos === $newProductsPositions[$productId]) {
+                        $pos++;
                     }
-                    if ($flag) {
-                        $productsPosition[$productId] += $step;
-                        $counter++;
-                        if($counter === $limit) break;
-                    }
+                    continue;
                 }
-                //$productsPosition = $this->organizeProductsPositions($productsPosition, $jump);
-            }*/
-            print_r($productsPosition);die;
+                $resProductPositions[$productId] = $pos;
+                $pos++;
+
+            }print_r($resProductPositions);die;
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }
