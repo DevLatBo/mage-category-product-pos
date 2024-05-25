@@ -60,7 +60,7 @@ class DataService
      */
     public function moveProductPosition(int $categoryId, array $skuList, int $jump): array
     {
-        $productsMoved = array();
+        $resProductPositions = array();
         try {
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
@@ -79,26 +79,30 @@ class DataService
             print_r($newProductsPositions);
             print_r($productsPos);
             // TODO: Verify the replacement of product position.
-            $resProductPositions = array();
             $pos = 0;
             foreach ($productsPos as $productId => $position) {
                 if (isset($newProductsPositions[$productId])) {
                     $resProductPositions[$productId] = $newProductsPositions[$productId];
-                    if ($pos === $newProductsPositions[$productId]) {
-                        $pos++;
-                    }
                     continue;
                 }
-                $resProductPositions[$productId] = $pos;
+                $flag = true;
+                while ($flag) {
+                    if(in_array($pos, $newProductsPositions)) {
+                        $pos++;
+                        continue;
+                    }
+                    $resProductPositions[$productId] = $pos;
+                    $flag = false;
+                }
                 $pos++;
-
-            }print_r($resProductPositions);die;
+            }
+            print_r($resProductPositions);die;
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }
 
 
-        return $productsMoved;
+        return $resProductPositions;
     }
 
     /**
