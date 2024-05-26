@@ -60,15 +60,14 @@ class DataService
      */
     public function moveProductPosition(int $categoryId, array $skuList, int $jump): array
     {
-        $resProductPositions = array();
+        $productsMoved = array();
         try {
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
             $newProductsPositions = $this->generateNewProductsPos($skuList, $category, $jump);
             $productsPos = $category->getProductsPosition();
 
-            print_r($newProductsPositions);
-            //print_r($productsPos);
+            $resProductPositions = array();
             $pos = 0;
             foreach ($productsPos as $productId => $position) {
                 if (isset($newProductsPositions[$productId])) {
@@ -77,7 +76,7 @@ class DataService
                 }
                 $flag = true;
                 while ($flag) {
-                    if(in_array($pos, $newProductsPositions)) {
+                    if (in_array($pos, $newProductsPositions)) {
                         $pos++;
                         continue;
                     }
@@ -86,24 +85,22 @@ class DataService
                 }
                 $pos++;
             }
-            /*foreach ($skuList as $sku) {
-                $product = $this->productRepository->get($sku);
-                $productsList[$product->getId()] = $this->getProductNewPos($product, $productsPositions, $numberOfProducts, $jump);
-                $productsMoved[$product->getId()] = array(
-                    'id'    =>  $product->getId(),
-                    'sku'   =>  $product->getSku(),
-                    'pos'   =>  $this->setProductPos($product, $category, $jump)
-                );
-            }*/
             $category->setData('posted_products', $resProductPositions);
             $this->category->save($category);
-
+            foreach ($skuList as $sku) {
+                $product = $this->productRepository->get($sku);
+                $productsMoved[] = array(
+                    'id'    =>  $product->getId(),
+                    'sku'   =>  $product->getSku(),
+                    'pos'   =>  $resProductPositions[$product->getId()]
+                );
+            }
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }
 
 
-        return $resProductPositions;
+        return $productsMoved;
     }
 
     /**
