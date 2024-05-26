@@ -67,18 +67,8 @@ class DataService
             $newProductsPositions = $this->generateNewProductsPos($skuList, $category, $jump);
             $productsPos = $category->getProductsPosition();
 
-            /*foreach ($skuList as $sku) {
-                $product = $this->productRepository->get($sku);
-                $productsList[$product->getId()] = $this->getProductNewPos($product, $productsPositions, $numberOfProducts, $jump);
-                $productsMoved[$product->getId()] = array(
-                    'id'    =>  $product->getId(),
-                    'sku'   =>  $product->getSku(),
-                    'pos'   =>  $this->setProductPos($product, $category, $jump)
-                );
-            }*/
             print_r($newProductsPositions);
-            print_r($productsPos);
-            // TODO: Verify the replacement of product position.
+            //print_r($productsPos);
             $pos = 0;
             foreach ($productsPos as $productId => $position) {
                 if (isset($newProductsPositions[$productId])) {
@@ -96,7 +86,18 @@ class DataService
                 }
                 $pos++;
             }
-            print_r($resProductPositions);die;
+            /*foreach ($skuList as $sku) {
+                $product = $this->productRepository->get($sku);
+                $productsList[$product->getId()] = $this->getProductNewPos($product, $productsPositions, $numberOfProducts, $jump);
+                $productsMoved[$product->getId()] = array(
+                    'id'    =>  $product->getId(),
+                    'sku'   =>  $product->getSku(),
+                    'pos'   =>  $this->setProductPos($product, $category, $jump)
+                );
+            }*/
+            $category->setData('posted_products', $resProductPositions);
+            $this->category->save($category);
+
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }
@@ -193,64 +194,5 @@ class DataService
             );
         }
         return $categoryId;
-    }
-
-
-    /**
-     * @param ProductInterface $product
-     * @param CategoryModel $category
-     * @param int $jump
-     * @return int
-     * @throws Exception
-     */
-    private function setProductPosBACKUP(ProductInterface $product, CategoryModel $category, int $jump): int
-    {
-        $productId = intval($product->getId());
-        $productsPositions = $category->getProductsPosition();
-        $numberOfProducts = $category->getProductCount();
-        $asc = ($jump < 0) ?? false;
-        $flag = false;
-        asort($productsPositions);
-        $auxPos = $productsPositions[$productId] + $jump;
-        if (!$asc) {
-            $productsPositions[$productId] = ($auxPos >= $numberOfProducts) ? $numberOfProducts - 1 : $auxPos;
-        }
-        if ($asc) {
-            $productsPositions[$productId] = ($auxPos < 0) ? 0 : $auxPos;
-        }
-        // This will organize the other products positions.
-        foreach ($productsPositions as $prodId => $position) {
-            if ($asc) {
-                if ($prodId === $productId) {
-                    break;
-                }
-                if ($position == $productsPositions[$productId]) {
-                    $flag = true;
-                }
-                if ($flag) {
-                    $productsPositions[$prodId]++;
-                }
-            }
-            else {
-                if($prodId === $productId) {
-                    $flag = true;
-                    continue;
-                }
-                if ($flag) {
-                    if($position == $productsPositions[$productId]) {
-                        $flag = false;
-                    }
-                    $productsPositions[$prodId]--;
-                }
-            }
-        }
-        try{
-            $category->setData('posted_products', $productsPositions);
-            $this->category->save($category);
-        } catch (Exception $e) {
-            throw new Exception(__("Product Position not updated in category: {$category->getName()}"));
-        }
-
-        return $productsPositions[$productId];
     }
 }
