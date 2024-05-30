@@ -3,7 +3,6 @@
 namespace Devlat\CategoryProductPos\Model\Service;
 
 use Exception;
-use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Category as CategoryModel;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
@@ -13,7 +12,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Validation\ValidationException;
 
-class DataService
+class Data
 {
     /**
      * @var CategoryCollectionFactory
@@ -87,6 +86,7 @@ class DataService
             }
             $category->setData('posted_products', $resProductPositions);
             $this->category->save($category);
+
             foreach ($skuList as $sku) {
                 $product = $this->productRepository->get($sku);
                 $productsMoved[] = array(
@@ -99,26 +99,7 @@ class DataService
             throw new Exception(__($e->getMessage()));
         }
 
-
         return $productsMoved;
-    }
-
-    /**
-     * Returns the product positions list organized, based on jump value.
-     * If jump value is negative, it will apply the reverse order,
-     * otherwise it will be organized from the lowest to highest.
-     * @param array $productsPositions
-     * @param $jump
-     * @return array
-     */
-    private function organizeProductsPositions(array $productsPositions, $jump): array
-    {
-        $productPosList = $productsPositions;
-        asort($productPosList);
-        if($jump < 0) {
-            $productPosList = array_reverse($productsPositions, true);
-        }
-        return $productPosList;
     }
 
     /**
@@ -153,21 +134,21 @@ class DataService
             $productsList[$productId] = $productPos;
         }
 
-        $resProductList = array();
+        $newProductsPos = array();
         foreach ($productsList as $prodId => $position) {
             $flag = false;
             $pos = $position;
             while (!$flag) {
-                if (in_array($pos, $resProductList)) {
+                if (in_array($pos, $newProductsPos)) {
                     $pos += $step;
                     continue;
                 }
                 $flag = true;
             }
-            $resProductList[$prodId] = $pos;
+            $newProductsPos[$prodId] = $pos;
         }
 
-        return $resProductList;
+        return $newProductsPos;
     }
 
     /**

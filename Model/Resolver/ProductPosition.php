@@ -2,7 +2,7 @@
 
 namespace Devlat\CategoryProductPos\Model\Resolver;
 
-use Devlat\CategoryProductPos\Model\Service\DataService;
+use Devlat\CategoryProductPos\Model\Service\Data;
 use Devlat\CategoryProductPos\Model\Validator;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
@@ -11,13 +11,13 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 class ProductPosition implements ResolverInterface
 {
     /**
-     * @var DataService
+     * @var Data
      */
-    private DataService $dataService;
+    private Data $dataService;
     private Validator $validator;
 
     public function __construct(
-        DataService $dataService,
+        Data      $dataService,
         Validator $validator
     )
     {

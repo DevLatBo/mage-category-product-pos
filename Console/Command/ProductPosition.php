@@ -2,7 +2,7 @@
 
 namespace Devlat\CategoryProductPos\Console\Command;
 
-use Devlat\CategoryProductPos\Model\Service\DataService;
+use Devlat\CategoryProductPos\Model\Service\Data;
 use Devlat\CategoryProductPos\Model\Validator;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Validation\ValidationException;
@@ -19,19 +19,19 @@ class ProductPosition extends Command
     private const JUMP = 'jump';
     private const MODE = 'mode';
     /**
-     * @var DataService
+     * @var Data
      */
-    private DataService $dataService;
+    private Data $dataService;
     private Validator $validator;
 
     /**
-     * @param DataService $dataService
+     * @param Data $dataService
      * @param string|null $name
      */
     public function __construct(
-        DataService $dataService,
+        Data      $dataService,
         Validator $validator,
-        string $name = null
+        string    $name = null
     )
     {
         parent::__construct($name);
