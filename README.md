@@ -59,12 +59,12 @@ Para esto debes tomar en cuenta lo siguiente:
 * Debes declarar para que categoria hay que aplicar el cambio de posición de un producto, inserta el nombre de la categoria.
 * Puedes declarar un producto o mas de un producto para aplicar el cambio de posición, solo se toma el(los) sku(s).
 * Declara por cuantas posiciones debe recorrer el producto, aca lo consideramos como salto (jump).
-* Es opcional el parametro mode, pero es en base al modo. Tomar encuenta solo palabras DESC, ASC.
-Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerirá de estos datos que hemos memcionados anteriormente, vea los siguientes ejemplos:
+* Es opcional el parametro mode, pero es en base al modo si sube o baja posiciones, tomar encuenta solo palabras DESC, ASC.
+Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerirá de estos datos que hemos mencionado anteriormente, vea los siguientes ejemplos:
 
-* `bin/magento devlat:category:position -c "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 ASC`
-* `bin/magento devlat:category:position --category "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 DESC`
-* `bin/magento devlat:category:position -c "Categoria Name" --skus "prod-1" --jump 1`
+  - `bin/magento devlat:category:position -c "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 ASC`
+  - `bin/magento devlat:category:position --category "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 DESC`
+  - `bin/magento devlat:category:position -c "Categoria Name" --skus "prod-1" --jump 1`
 
 Para separar los skus usa solo comas.
 
