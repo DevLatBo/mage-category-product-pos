@@ -1,6 +1,6 @@
 <?php
 
-namespace Devlat\CategoryProductPos\Model;
+namespace Devlat\CategoryProductPos\Model\Service;
 
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -31,31 +31,23 @@ class Validator
      */
     public function checkInputs(array $inputs): array
     {
-        $flag = false;
         // Counts how many inputs are empty.
         $emptyCounter = array_sum(array_map(function($element) { return empty($element);}, $inputs));
-        if ($emptyCounter === 0) {
-            $flag = true;
-        }
 
-        // Change the positions sign based on the mode value.
-        if ($flag) {
-            $positions = $inputs['jump'];
-            $isNum = is_numeric($positions) ?? false;
-            if($isNum) {
-                $positions = intval($positions);
-                if ($inputs['mode'] === 'ASC') {
-                    $positions *= -1;
-                }
-            }
-            $inputs['jump'] = $positions;
-            $flag = $isNum;
-        }
-        if (!$flag) {
+        if ($emptyCounter) {
             throw new ValidationException(
                 __("Category, Skus and Pos are required and the jump data has to be a numeric value, please check again.")
             );
         }
+
+        if (!is_numeric($inputs['jump'])) {
+            throw new ValidationException(
+                __("Jump requires to be a numeric value, please check again.")
+            );
+        }
+
+        $inputs['jump'] = intval($inputs['jump']);
+
         return $inputs;
     }
 
