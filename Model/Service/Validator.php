@@ -14,6 +14,7 @@ class Validator
     private ProductRepository $productRepository;
 
     /**
+     * Constructor.
      * @param ProductRepository $productRepository
      */
     public function __construct(
@@ -52,32 +53,19 @@ class Validator
     }
 
     /**
-     * Verifies if product is assigned to this category.
+     * Checks if a product with the given SKU exists in the specified category.
      * @param int $categoryId
-     * @param string $skus
-     * @return array
+     * @param string $sku
+     * @return bool
      * @throws NoSuchEntityException
      */
-    public function checkProductInCategory(int $categoryId, string $skus): array
+    public function checkProductInCategory(int $categoryId, string $sku): bool
     {
-        $productsNotMoved = [];
-        $skus = preg_replace('/\s+/', '', $skus);
-        $skuList = explode(",", $skus);
-        foreach ($skuList as $key => $sku) {
-            try {
-                $product = $this->productRepository->get($sku);
-                $productsCategory = $product->getCategoryIds();
-                if(!in_array($categoryId, $productsCategory)) {
-                    $productsNotMoved[] = array(
-                        'id'    =>  $product->getId(),
-                        'sku'   =>  $sku
-                    );
-                    unset($skuList[$key]);
-                }
-            } catch (NoSuchEntityException $e) {
-                throw new NoSuchEntityException(__($e->getMessage()));
-            }
+        try {
+            $product = $this->productRepository->get($sku);
+        } catch (NoSuchEntityException $e) {
+            throw new NoSuchEntityException(__($e->getMessage()));
         }
-        return [$productsNotMoved, $skuList];
+        return in_array($categoryId, $product->getCategoryIds());
     }
 }
