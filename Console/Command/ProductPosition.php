@@ -3,21 +3,22 @@
 namespace Devlat\CategoryProductPos\Console\Command;
 
 use Devlat\CategoryProductPos\Model\Service\Data;
-use Devlat\CategoryProductPos\Model\Validator;
+use Devlat\CategoryProductPos\Model\Service\Validator;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Validation\ValidationException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ProductPosition extends Command
 {
-    private const SKUS = 'skus';
+    /** @var string  */
+    private const SKU = 'sku';
+    /** @var string  */
     private const CATEGORY = 'category';
+    /** @var string  */
     private const JUMP = 'jump';
-    private const MODE = 'mode';
     /**
      * @var Data
      */
@@ -54,22 +55,17 @@ class ProductPosition extends Command
                 __('Category')
             ),
             new InputOption(
-                self::SKUS,
+                self::SKU,
                 null,
                 InputOption::VALUE_REQUIRED,
                 __('Product(s) in order to change the position.')
             ),
             new InputOption(
                 self::JUMP,
-                'j',
+                null,
                 InputOption::VALUE_REQUIRED,
                 __('Set the position of the product by jumping.')
             ),
-            new InputArgument(
-                self::MODE,
-                InputArgument::OPTIONAL,
-                __('Define if it is going to change the position based on ASC or DESC')
-            )
         ]);
 
         parent::configure();
@@ -78,33 +74,36 @@ class ProductPosition extends Command
     /**
      * @throws ValidationException
      * @throws LocalizedException
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Input data validation.
         $inputs = array(
             'category'  =>  $input->getOption(self::CATEGORY),
-            'skus'      =>  $input->getOption(self::SKUS),
+            'sku'      =>  $input->getOption(self::SKU),
             'jump'      =>  $input->getOption(self::JUMP),
-            'mode'      =>  strtoupper($input->getArgument(self::MODE)) === 'DESC' ? 'DESC' : 'ASC'
         );
+
         $inputs = $this->validator->checkInputs($inputs);
 
         // Validation of category.
-        $category   =   $inputs['category'];
-        $categoryId =   $this->dataService->getCategoryId($category);
+        $category           =   $inputs['category'];
+        $categoryId         =   $this->dataService->getCategoryId($category);
 
-        $skus           =   $inputs['skus'];
-        $newPositions   =   $inputs['jump'];
-        [$productsNotMoved, $skuList] = $this->validator->checkProductInCategory($categoryId, $skus);
-        foreach($productsNotMoved as $product => $data) {
-            $output->writeln("<comment>Sku: {$data['sku']} with ID: {$data['id']} was not found in {$category}</comment>");
-        }
-        $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $newPositions);
-        foreach($productsMoved as $product => $data) {
-            $output->writeln("<comment>The product with SKU: {$data['sku']} with ID: {$data['id']} is in position {$data['pos']}</comment>");
+        $sku                =   $inputs['sku'];
+        $jump               =   $inputs['jump'];
+        $canChangePosition  =   $this->validator->checkProductInCategory($categoryId, $sku);
+
+        if ($canChangePosition) {
+            $productMoved = $this->dataService->setProductPositions($categoryId, $sku, $jump);
+            $output->writeln(
+                "<comment>The product with SKU: {$productMoved['sku']}, ID: {$productMoved['id']} is now in position {$productMoved['pos']}</comment>");
+            return Command::SUCCESS;
         }
 
-        $output->writeln("<info>Setting products position(s) in {$category} is done.</info>");
+        $output->writeln("<comment>The product position with SKU: {$sku} in category: {$category} was not updated.</comment>");
+        return Command::INVALID;
+
     }
 }

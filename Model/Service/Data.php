@@ -51,104 +51,76 @@ class Data
     }
 
     /**
+     * Set the products positions in the category.
      * @param int $categoryId
-     * @param array $skuList
+     * @param string $sku
      * @param int $jump
      * @return array
      * @throws Exception
      */
-    public function moveProductPosition(int $categoryId, array $skuList, int $jump): array
+    public function setProductPositions(int $categoryId, string $sku, int $jump): array
     {
-        $productsMoved = array();
+        $productPositioned = array();
         try {
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
-            $newProductsPositions = $this->generateNewProductsPos($skuList, $category, $jump);
-            $productsPos = $category->getProductsPosition();
+            $newProductsPositions = $this->organizingProductPositions($sku, $category, $jump);
 
-            $resProductPositions = array();
-            $pos = 0;
-            foreach ($productsPos as $productId => $position) {
-                if (isset($newProductsPositions[$productId])) {
-                    $resProductPositions[$productId] = $newProductsPositions[$productId];
-                    continue;
-                }
-                $flag = true;
-                while ($flag) {
-                    if (in_array($pos, $newProductsPositions)) {
-                        $pos++;
-                        continue;
-                    }
-                    $resProductPositions[$productId] = $pos;
-                    $flag = false;
-                }
-                $pos++;
-            }
-            $category->setData('posted_products', $resProductPositions);
+            $category->setData('posted_products', $newProductsPositions);
             $this->category->save($category);
 
-            foreach ($skuList as $sku) {
-                $product = $this->productRepository->get($sku);
-                $productsMoved[] = array(
-                    'id'    =>  $product->getId(),
-                    'sku'   =>  $product->getSku(),
-                    'pos'   =>  $resProductPositions[$product->getId()]
-                );
-            }
+            $product = $this->productRepository->get($sku);
+            $productPositioned = array(
+                'id'    => $product->getId(),
+                'sku'   => $product->getSku(),
+                'pos'   => $newProductsPositions[$product->getId()]
+            );
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }
 
-        return $productsMoved;
+        return $productPositioned;
     }
 
     /**
-     *  This will generate an array of new product pos values,
-     *  if there is a position value repeated, it will increase or decrease its value based on jump value.
-     *
-     * @param array $skuList
+     *  Method in charge of generating the new position of the product and reordering the other products accordingly.
+     * @param string $sku
      * @param CategoryModel $category
      * @param int $jump
      * @return array
      * @throws NoSuchEntityException
      */
-    private function generateNewProductsPos(array $skuList, CategoryModel $category, int $jump): array
+    private function organizingProductPositions(string $sku, CategoryModel $category, int $jump): array
     {
         $productsPositions = $category->getProductsPosition();
         $numberOfProducts = $category->getProductCount();
-        // si step es 1 es ASC, caso contrario es DESC (-1).
-        $step = $jump < 0 ? 1 : -1;
 
-        $productsList = array();
-        $asc = ($step > 0) ?? false;
-        foreach ($skuList as $sku) {
-            $product = $this->productRepository->get($sku);
-            $productId = $product->getId();
-            $productPos = $productsPositions[$productId] + $jump;
-            if (!$asc) {
-                $productPos = ($productPos >= $numberOfProducts) ? $numberOfProducts - 1 : $productPos;
-            }
-            if ($asc) {
-                $productPos = ($productPos < 0) ? 0 : $productPos;
-            }
-            $productsList[$productId] = $productPos;
+        $product = $this->productRepository->get($sku);
+        $productId = $product->getId();
+
+        $oldPos = $productsPositions[$productId];
+        $newPos = $oldPos + $jump;
+
+        if ($newPos >= $numberOfProducts) {
+            $newPos = $numberOfProducts - 1;
+        } elseif ($newPos < 0) {
+            $newPos = 0;
         }
+        asort($productsPositions);
 
-        $newProductsPos = array();
-        foreach ($productsList as $prodId => $position) {
-            $flag = false;
-            $pos = $position;
-            while (!$flag) {
-                if (in_array($pos, $newProductsPos)) {
-                    $pos += $step;
-                    continue;
-                }
-                $flag = true;
+        foreach ($productsPositions as $prodId => $pos) {
+            if ($prodId === $productId) continue;
+
+            if ($jump > 0 && $pos > $oldPos && $pos <= $newPos) {
+                $productsPositions[$prodId] = $pos - 1;
+
+            } else if ($jump < 0 && $pos < $oldPos && $pos >= $newPos) {
+                $productsPositions[$prodId] = $pos + 1;
             }
-            $newProductsPos[$prodId] = $pos;
         }
+        $productsPositions[$productId] = $newPos;
 
-        return $newProductsPos;
+        return $productsPositions;
     }
 
     /**
@@ -156,17 +128,16 @@ class Data
      * @return int
      * @throws LocalizedException
      */
-    public function getCategoryId(string $name): ?int {
-        $categoryId = null;
-        $collection = $this->categoryCollectionFactory->create()
+    public function getCategoryId(string $name): int {
+        $category = $this->categoryCollectionFactory->create()
             ->addAttributeToFilter('name', $name)
             ->setPageSize(1)
             ->getFirstItem()
             ->getData();
-        if (!empty($collection)) {
-           $categoryId = $collection['entity_id'];
-        }
-        if (is_null($categoryId)) {
+
+        $categoryId = intval($category['entity_id'] ?? 0);
+
+        if (!$categoryId) {
             throw new ValidationException(
                 __("There is no category found according to the category: {$name}")
             );
