@@ -7,7 +7,6 @@ use Magento\Catalog\Model\Category as CategoryModel;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Catalog\Model\ResourceModel\Category;
-use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class Data

@@ -1,24 +1,21 @@
 type Mutation {
-    setProductPosition(
+    productPosition(
         input: ProductsCategoryInput! @doc(description: "Products Category Input")
     ): ProductsPositionResponse
     @resolver(class: "Devlat\\CategoryProductPos\\Model\\Resolver\\ProductPosition")
     @doc(description: "Set the product position based on the category")
 }
 input ProductsCategoryInput {
-    category: String! @doc(description: "Category of the product.")
-    skus: String! @doc(description: "Sku(s) in which we are going to change its position")
-    jump: Int! @doc(description: "Position in which we are going to increase or decrease.")
-    mode: String @doc(description: "Defines if we are going to ascend or descend the product position.")
+    category: String! @doc(description: "Category name.")
+    sku: String! @doc(description: "Product sku.")
+    jump: Int! @doc(description: "Move product position on category.")
 }
 type ProductsPositionResponse {
-    category: String! @doc(description: "Category in which has been the product position has changed.")
-    jumped: [ProductsPosition] @doc(description: "Product in which position has been updated.")
-    notJumped: [ProductsPosition] @doc(description: "Products not moved because they belonged to another category.")
+    product: ProductPositioned @doc(description: "Product recently positioned.")
 }
 
-type ProductsPosition {
-    id: Int! @doc(description: "Id of the product.")
+type ProductPositioned {
+    category: String! @doc(description: "Category Name.")
     sku: String! @doc(description: "Sku of the product.")
-    pos: Int @doc(description: "New position of the product")
+    newPosition: Int @doc(description: "New position of the product.")
 }

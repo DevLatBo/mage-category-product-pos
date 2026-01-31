@@ -3,7 +3,7 @@
 namespace Devlat\CategoryProductPos\Model\Resolver;
 
 use Devlat\CategoryProductPos\Model\Service\Data;
-use Devlat\CategoryProductPos\Model\Validator;
+use Devlat\CategoryProductPos\Model\Service\Validator;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -14,8 +14,16 @@ class ProductPosition implements ResolverInterface
      * @var Data
      */
     private Data $dataService;
+    /**
+     * @var Validator
+     */
     private Validator $validator;
 
+    /**
+     * Constructor.
+     * @param Data $dataService
+     * @param Validator $validator
+     */
     public function __construct(
         Data      $dataService,
         Validator $validator
@@ -35,22 +43,25 @@ class ProductPosition implements ResolverInterface
     {
         // Input data validation.
         $inputs = $args['input'];
-        $inputs['mode'] = strtoupper($inputs['mode']) === 'DESC' ? 'DESC' : 'ASC';
         $inputs = $this->validator->checkInputs($inputs);
 
         // Validation of category.
         $category       =   $inputs['category'];
-        $categoryId = $this->dataService->getCategoryId($category);
+        $categoryId = $this->validator->getCategoryId($category);
 
-        $skus                           =   $inputs['skus'];
-        [$productsNotMoved, $skuList]   =   $this->validator->checkProductInCategory($categoryId, $skus);
+        $sku                =   $inputs['sku'];
+        $jump               =   $inputs['jump'];
+        $canChangePosition  =   $this->validator->checkProductInCategory($categoryId, $sku);
 
-        $jumpPositions    =   $inputs['jump'];
-        $productsMoved = $this->dataService->moveProductPosition($categoryId, $skuList, $jumpPositions);
+        if ($canChangePosition) {
+            $productsMoved = $this->dataService->setProductPositions($categoryId, $sku, $jump);
+        }
         return [
-            'category'  =>  $category,
-            'jumped'     =>  $productsMoved,
-            'notJumped'  =>  $productsNotMoved
+            'product' => [
+                'category'      =>  $category,
+                'sku'           =>  $sku,
+                'newPosition'   =>  $productsMoved['pos']
+            ],
         ];
 
     }
