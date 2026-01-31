@@ -5,6 +5,8 @@ namespace Devlat\CategoryProductPos\Model\Service;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Validation\ValidationException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 
 class Validator
 {
@@ -12,16 +14,23 @@ class Validator
      * @var ProductRepository
      */
     private ProductRepository $productRepository;
+    /**
+     * @var CategoryCollectionFactory
+     */
+    private CategoryCollectionFactory $categoryCollectionFactory;
 
     /**
      * Constructor.
      * @param ProductRepository $productRepository
+     * @param CategoryCollectionFactory $categoryCollectionFactory
      */
     public function __construct(
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        CategoryCollectionFactory $categoryCollectionFactory
     )
     {
         $this->productRepository = $productRepository;
+        $this->categoryCollectionFactory = $categoryCollectionFactory;
     }
 
     /**
@@ -37,7 +46,7 @@ class Validator
 
         if ($emptyCounter) {
             throw new ValidationException(
-                __("Category, Skus and Pos are required and the jump data has to be a numeric value, please check again.")
+                __("Category, Skus and Pos are required and the jump data has to be a numeric value or non-zero, please check again.")
             );
         }
 
@@ -67,5 +76,29 @@ class Validator
             throw new NoSuchEntityException(__($e->getMessage()));
         }
         return in_array($categoryId, $product->getCategoryIds());
+    }
+
+    /**
+     * Checks if the category with the given name exists and returns its ID.
+     * @param string $name
+     * @return int
+     * @throws ValidationException
+     * @throws LocalizedException
+     */
+    public function getCategoryId(string $name): int {
+        $category = $this->categoryCollectionFactory->create()
+            ->addAttributeToFilter('name', $name)
+            ->setPageSize(1)
+            ->getFirstItem()
+            ->getData();
+
+        $categoryId = intval($category['entity_id'] ?? 0);
+
+        if (!$categoryId) {
+            throw new ValidationException(
+                __("There is no category found with the name: {$name}")
+            );
+        }
+        return $categoryId;
     }
 }

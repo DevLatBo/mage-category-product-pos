@@ -89,7 +89,7 @@ class ProductPosition extends Command
 
         // Validation of category.
         $category           =   $inputs['category'];
-        $categoryId         =   $this->dataService->getCategoryId($category);
+        $categoryId         =   $this->validator->getCategoryId($category);
 
         $sku                =   $inputs['sku'];
         $jump               =   $inputs['jump'];
