@@ -45,22 +45,26 @@ class ProductPosition implements ResolverInterface
         $inputs = $args['input'];
         $inputs = $this->validator->checkInputs($inputs);
 
+        $category   =   $inputs['category'];
+        $sku        =   $inputs['sku'];
+        $jump       =   $inputs['jump'];
+
+
         // Validation of category.
-        $category       =   $inputs['category'];
         $categoryId = $this->validator->getCategoryId($category);
 
-        $sku                =   $inputs['sku'];
-        $jump               =   $inputs['jump'];
+        $newPosition        =   null;
         $canChangePosition  =   $this->validator->checkProductInCategory($categoryId, $sku);
-
         if ($canChangePosition) {
-            $productsMoved = $this->dataService->setProductPositions($categoryId, $sku, $jump);
+            $productsMoved  =   $this->dataService->setProductPositions($categoryId, $sku, $jump);
+            $newPosition    =   $productsMoved['pos'] ?? null;
         }
+
         return [
             'product' => [
                 'category'      =>  $category,
                 'sku'           =>  $sku,
-                'newPosition'   =>  $productsMoved['pos']
+                'newPosition'   =>  $newPosition,
             ],
         ];
 

@@ -3,7 +3,7 @@ type Mutation {
         input: ProductsCategoryInput! @doc(description: "Products Category Input")
     ): ProductsPositionResponse
     @resolver(class: "Devlat\\CategoryProductPos\\Model\\Resolver\\ProductPosition")
-    @doc(description: "Set the product position based on the category")
+    @doc(description: "Set the product position in the category page (PLP)")
 }
 input ProductsCategoryInput {
     category: String! @doc(description: "Category name.")

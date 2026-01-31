@@ -46,7 +46,7 @@ class Validator
 
         if ($emptyCounter) {
             throw new ValidationException(
-                __("Category, Skus and Pos are required and the jump data has to be a numeric value or non-zero, please check again.")
+                __("Category, Sku and Jump are required and the jump data has to be a numeric value or non-zero, please check again.")
             );
         }
 
