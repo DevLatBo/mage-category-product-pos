@@ -14,6 +14,7 @@ Si existen dudas, observaciones, errores encontrados, ir a Issues y hacer el rep
   * [Funcionamiento](#funcionamiento)
     * [CLI Command](#cli-command)
     * [GraphQl](#graphql) 
+* [Actualizaciones](#actualizaciones)
 * [Dudas o Preguntas](#dudas-o-preguntas)
 ---
 
@@ -29,24 +30,22 @@ Puede descargarla en la página oficial de [Adobe Commerce](https://business.ado
 
 ## Proyecto
 
-Este proyecto consiste en un módulo para ordenar un(os) producto(s) de una categoría en específico por su posición para la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico y realizar el cambio de manera mas sencilla y rápida.
+Este proyecto consiste en un módulo para ordenar un producto de una categoría en específico por su posición para la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico y realizar el cambio de manera mas sencilla y rápida.
 La tarea de cambiar posición de un producto dentro de una categoría puede realizarse de dos formas ya sea por medio del uso de un CLI Command o por medio de GraphQl y así ver el cambio dentro del Product List Page (PLP).
 
 ---
 
 ## Versiones
-* Magento 2.4.4 (Open Source).
-* Composer: 1.9.3.
-* PHP 8.1.
-* Postman
+* Magento 2.4.6 (Open Source).
+* PHP 8.1, 8.2, 8.3, 8.4.
 
 ---
 
 ## Instalar
 La instalación del proyecto es muy sencillo, lo unico que puedes hacer es clonar este proyecto dentro del app/code en el framework, crea el directorio Devlat (en el mismo app/code) y luego clonas el directorio.
-Luego para instalar el proyecto dentro del framework realiza los siguientes pasos:
+Luego para instalar el proyecto dentro de magento framework realiza los siguientes pasos:
 * ```bin/magento module:status``` (verifica que tu módulo se encuentra dentro de los que no estan instalados que por default esta inactivo o deshabilitado).
-* Ejcuta el siguiente comando para habilitar el módulo: ```bin/magento module:enable Devlat_RelatedProducts```.
+* Ejecuta el siguiente comando para habilitar el módulo: ```bin/magento module:enable Devlat_CategoryProductPos```.
 * Ejecuta ```bin/magento setup:upgrade``` para proceder con la instalacion del módulo.
 
 ---
@@ -57,75 +56,65 @@ Tenemos dos formas para poder trabajar con este módulo para el salto de posicio
 ### CLI Command
 Para esto debes tomar en cuenta lo siguiente:
 * Debes declarar para que categoria hay que aplicar el cambio de posición de un producto, inserta el nombre de la categoria.
-* Puedes declarar un producto o mas de un producto para aplicar el cambio de posición, solo se toma el(los) sku(s).
-* Declara por cuantas posiciones debe recorrer el producto, aca lo consideramos como salto (jump).
-* Es opcional el parametro mode, pero es en base al modo si sube o baja posiciones, tomar encuenta solo palabras DESC, ASC.
+* Declara un producto para aplicar el cambio de posición, solo se toma el sku.
+* Declara por cuantas posiciones debe recorrer el producto, aca lo consideramos como salto (jump), tiene que ser un 
+numero positivo o negativo (no cero).
 Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerirá de estos datos que hemos mencionado anteriormente, vea los siguientes ejemplos:
 
-  - `bin/magento devlat:category:position -c "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 ASC`
-  - `bin/magento devlat:category:position --category "Categoria Name" --skus "prod-1, prod-b, prod-C" -j 1 DESC`
-  - `bin/magento devlat:category:position -c "Categoria Name" --skus "prod-1" --jump 1`
+  - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="-15"`
+  - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="1"`
+  - `bin/magento devlat:category:position --category="Watches" --sku="24-WG02" --jump="1"`
 
-Para separar los skus usa solo comas.
 
 ### GraphQl
 Si deseas cambiar la posición de un producto, puedes hacerlo por medio de request GraphQl, ya que se desarrolló una mutación para poder cambiar la posición de un producto determinado en una categoría, toma en cuenta de 
 que el request que se hizo prueba es la siguiente:
 
 ```
-mutation setProductPos($category: String!, $skus: String!, $jump: Int!, $mode: String) {
-    setProductPosition(input: {category: $category, skus: $skus, jump: $jump, mode: $mode}) {
-        category
-        moved {
-            ... on ProductsPosition {
-                id
-                sku 
-                pos
-            }
-        }
-        notMoved {
-            ... on ProductsPosition {
+mutation setProductPos($category: String!, $sku: String!, $jump: Int!) {
+    productPosition(input: {category: $category, sku: $sku, jump: $jump}) {
+        product {
+            ... on ProductPositioned {
+                category
                 sku
+                newPosition   
             }
         }
     }
 }
 ```
-Preste atención de que tenemos variables **$category**, **$skus**, **$jump** y **$mode**. Estos son variables GraphQl que son nuestros datos de entrada en este caso:
+Preste atención de que tenemos variables **category**, **skus** y **jump**. Estos son variables GraphQl que son nuestros datos de entrada en este caso:
 ```
 {
-    "category": "Categoria A",
-    "skus": "prod-f,prod-c,prod-e",
-    "jump": 1,
-    "mode":"asc"
+    "category": "Watches",
+    "sku": "24-WG02",
+    "jump": "2"
 }
 ```
-Tome en cuenta de que "mode" es una variable o entrada **OPCIONAL**, si no es tomado en cuenta, por defecto el salto de posición sera de modo ascendente y obtendra dato de salida como ser:
+Dando como salida el siguiente resultado bajo el formato que se dio en schema:
 ```
 {
     "data": {
-        "setProductPosition": {
-            "category": "Categoria A",
-            "jumped": [
-                {
-                    "id": 2084,
-                    "sku": "prod-c",
-                    "pos": 1
-                }
-            ],
-            "notJumped": [
-                {
-                    "sku": "prod-f"
-                },
-                {
-                    "sku": "prod-e"
-                }
-            ]
+        "productPosition": {
+            "product": {
+                "category": "Watches",
+                "sku": "24-WG02",
+                "newPosition": 5
+            }
         }
     }
 }
 ```
-Dentro de setProductPosition tenemos los nodos **category**, que es el nombre de la categoria en el cual el producto esta, **jumped** es nodo que contiene el producto o los productos del cual cambiaron y se tiene una nueva posición del producto y otro nodo que es **notJumpled** es el nodo que hace referencia a productos que no cambiaron de posicion debido a que no estan incluidos en la categoria.
+Dentro de ProductPosition tenemos el nodo **product** y tenemos los datos de category, que es el nombre de la categoria en el cual el producto esta, 
+luego se tiene el **sku** del producto, **newPosition** es el dato que contiene la posición que se actualizó.
+
+---
+
+## Actualizaciones
+Para la versión 1.2.0 se realizó las siguientes mejoras:
+* Refactorización del codigo en CLI y GraphQl.
+* Ordenamiento de datos para la actualización de posiciones de productos en una categoría.
+* Dentro de la simplificación del código, se quito un parametro innecesario "mode" dentro de el CLI Command y GraphQl.
 
 ---
 
