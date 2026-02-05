@@ -7,6 +7,9 @@
                 <item name="devlat_category_position" xsi:type="object">
                     Devlat\CategoryProductPos\Console\Command\ProductPosition
                 </item>
+                <item name="devlat_category_reorganize" xsi:type="object">
+                    Devlat\CategoryProductPos\Console\Command\Reorganize
+                </item>
             </argument>
         </arguments>
     </type>

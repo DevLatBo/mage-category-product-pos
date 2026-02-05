@@ -43,7 +43,7 @@ class ProductPosition implements ResolverInterface
     {
         // Input data validation.
         $inputs = $args['input'];
-        $inputs = $this->validator->checkInputs($inputs);
+        $inputs = $this->validator->validatePositionInputs($inputs);
 
         $category   =   $inputs['category'];
         $sku        =   $inputs['sku'];

@@ -7,6 +7,8 @@ use Magento\Catalog\Model\Category as CategoryModel;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Catalog\Model\ResourceModel\Category;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class Data
@@ -23,22 +25,22 @@ class Data
      * @var Category
      */
     private Category $category;
-
     /**
-     * Constructor.
-     * @param ProductRepository $productRepository
-     * @param CategoryRepository $categoryRepository
-     * @param Category $category
+     * @var ProductCollectionFactory
      */
+    private ProductCollectionFactory $productCollectionFactory;
+
     public function __construct(
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
-        Category $category
+        Category $category,
+        ProductCollectionFactory $productCollectionFactory
     )
     {
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
         $this->category = $category;
+        $this->productCollectionFactory = $productCollectionFactory;
     }
 
     /**
@@ -112,5 +114,43 @@ class Data
         $productsPositions[$productId] = $newPos;
 
         return $productsPositions;
+    }
+
+    /**
+     * @param int $categoryId
+     * @param string $type
+     * @return ProductCollection
+     * @throws NoSuchEntityException
+     * @throws Exception
+     */
+    public function sortCategoryProducts(int $categoryId, string $type): void
+    {
+        $category = $this->categoryRepository->get($categoryId);
+
+        $collection = $this->productCollectionFactory->create();
+        $collection->addCategoryFilter($category)
+            ->addAttributeToSelect(['entity_id', 'name', 'sku']);
+
+        if ($type === 'id') $type = 'entity_id';
+
+        $collection->setOrder($type, 'ASC');
+
+        $pos = 0;
+        $productsOrdered = [];
+        foreach ($collection->getData() as $product) {
+            $productsOrdered[$product['entity_id']] = $pos;
+            $pos++;
+        }
+
+        try {
+            /** @var CategoryModel $category */
+            $category = $this->categoryRepository->get($categoryId);
+            $category->setData('posted_products', $productsOrdered);
+            $this->category->save($category);
+        } catch (Exception $e) {
+            throw new Exception(__($e->getMessage()));
+        }
+
+
     }
 }

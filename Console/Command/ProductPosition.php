@@ -85,7 +85,7 @@ class ProductPosition extends Command
             'jump'      =>  $input->getOption(self::JUMP),
         );
 
-        $inputs = $this->validator->checkInputs($inputs);
+        $inputs = $this->validator->validatePositionInputs($inputs);
 
         // Validation of category.
         $category           =   $inputs['category'];

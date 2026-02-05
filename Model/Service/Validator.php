@@ -39,7 +39,7 @@ class Validator
      * @return array
      * @throws ValidationException
      */
-    public function checkInputs(array $inputs): array
+    public function validatePositionInputs(array $inputs): array
     {
         // Counts how many inputs are empty.
         $emptyCounter = array_sum(array_map(function($element) { return empty($element);}, $inputs));
@@ -59,6 +59,25 @@ class Validator
         $inputs['jump'] = intval($inputs['jump']);
 
         return $inputs;
+    }
+
+    public function validateReorganizeInputs(array $inputs): void
+    {
+        // Counts how many inputs are empty.
+        $emptyCounter = array_sum(array_map(function($element) { return empty($element);}, $inputs));
+
+        if ($emptyCounter) {
+            throw new ValidationException(
+                __("Category and Type are required, please check again.")
+            );
+        }
+
+        $validTypes = ['id', 'name', 'sku'];
+        if (!in_array(strtolower($inputs['type']), $validTypes)) {
+            throw new ValidationException(
+                __("Type must be one of the following: " . implode(', ', $validTypes) . ". Please check again.")
+            );
+        }
     }
 
     /**
