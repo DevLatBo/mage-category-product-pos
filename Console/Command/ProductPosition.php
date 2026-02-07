@@ -92,7 +92,7 @@ class ProductPosition extends Command
         $categoryId         =   $this->validator->getCategoryId($category);
 
         $sku                =   $inputs['sku'];
-        $jump               =   $inputs['jump'];
+        $jump               =   intval($inputs['jump']);
         $canChangePosition  =   $this->validator->checkProductInCategory($categoryId, $sku);
 
         if ($canChangePosition) {

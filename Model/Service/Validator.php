@@ -41,42 +41,50 @@ class Validator
      */
     public function validatePositionInputs(array $inputs): array
     {
-        // Counts how many inputs are empty.
-        $emptyCounter = array_sum(array_map(function($element) { return empty($element);}, $inputs));
+        $this->validateRequiredInputs($inputs, ['sku', 'category', 'jump']);
 
-        if ($emptyCounter) {
-            throw new ValidationException(
-                __("Category, Sku and Jump are required and the jump data has to be a numeric value or non-zero, please check again.")
-            );
-        }
-
-        if (!is_numeric($inputs['jump'])) {
+        if (!is_numeric($inputs['jump']) || (int)$inputs['jump'] === 0) {
             throw new ValidationException(
                 __("Jump requires to be a numeric value, please check again.")
             );
         }
 
-        $inputs['jump'] = intval($inputs['jump']);
-
         return $inputs;
     }
 
+    /**
+     * Validates the input data for products reorganization in category.
+     * @param array $inputs
+     * @return void
+     * @throws ValidationException
+     */
     public function validateReorganizeInputs(array $inputs): void
     {
-        // Counts how many inputs are empty.
-        $emptyCounter = array_sum(array_map(function($element) { return empty($element);}, $inputs));
-
-        if ($emptyCounter) {
-            throw new ValidationException(
-                __("Category and Type are required, please check again.")
-            );
-        }
+        $this->validateRequiredInputs($inputs, ['category', 'type']);
 
         $validTypes = ['id', 'name', 'sku'];
         if (!in_array(strtolower($inputs['type']), $validTypes)) {
             throw new ValidationException(
                 __("Type must be one of the following: " . implode(', ', $validTypes) . ". Please check again.")
             );
+        }
+    }
+
+    /**
+     * Validates that the required fields are present and not empty.
+     * @param array $inputs
+     * @param array $requiredFields
+     * @return void
+     * @throws ValidationException
+     */
+    private function validateRequiredInputs(array $inputs, array $requiredFields): void
+    {
+        foreach ($requiredFields as $field) {
+            if (!isset($inputs[$field]) || $inputs[$field] === '') {
+                throw new ValidationException(
+                    __("The field '{$field}' is required and cannot be empty. Please check again.")
+                );
+            }
         }
     }
 

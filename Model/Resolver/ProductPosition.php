@@ -47,7 +47,7 @@ class ProductPosition implements ResolverInterface
 
         $category   =   $inputs['category'];
         $sku        =   $inputs['sku'];
-        $jump       =   $inputs['jump'];
+        $jump       =   intval($inputs['jump']);
 
 
         // Validation of category.
