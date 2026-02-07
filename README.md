@@ -55,15 +55,23 @@ Tenemos dos formas para poder trabajar con este módulo para el salto de posicio
 
 ### CLI Command
 Para esto debes tomar en cuenta lo siguiente:
-* Debes declarar para que categoria hay que aplicar el cambio de posición de un producto, inserta el nombre de la categoria.
-* Declara un producto para aplicar el cambio de posición, solo se toma el sku.
-* Declara por cuantas posiciones debe recorrer el producto, aca lo consideramos como salto (jump), tiene que ser un 
-numero positivo o negativo (no cero).
-Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerirá de estos datos que hemos mencionado anteriormente, vea los siguientes ejemplos:
+* COMANDO #1:
+  * Debes declarar para que categoria hay que aplicar el cambio de posición de un producto, inserta el nombre de la categoria.
+  * Declara un producto para aplicar el cambio de posición, solo se toma el sku.
+  * Declara por cuantas posiciones debe recorrer el producto, aca lo consideramos como salto (jump), tiene que ser un 
+    numero positivo o negativo (no cero).
+    Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerirá de estos datos que hemos mencionado anteriormente, vea los siguientes ejemplos:
 
-  - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="-15"`
-  - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="1"`
-  - `bin/magento devlat:category:position --category="Watches" --sku="24-WG02" --jump="1"`
+    - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="-15"`
+    - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="1"`
+    - `bin/magento devlat:category:position --category="Watches" --sku="24-WG02" --jump="1"`
+* COMANDO #2:
+  * Debes declarar el nombre de la categoria  y el tipo que sera en base a que sera el 
+    reordenamiento de productos en una categoria.
+  * Tanto el nombre de la categoria como el tipo son REQUERIDOS.
+  * El uso es sencillo y un ejemplo a usar el comando es el siguiente:
+    - `bin/magento devlat:category:reorganize -c "Watches" --type="sku"`
+    - `bin/magento devlat:category:reorganize --category="Watches" --type="id"`
 
 
 ### GraphQl
@@ -111,11 +119,9 @@ luego se tiene el **sku** del producto, **newPosition** es el dato que contiene 
 ---
 
 ## Actualizaciones
-Para la versión 1.2.0 se realizó las siguientes mejoras:
-* Refactorización del codigo en CLI y GraphQl.
-* Ordenamiento de datos para la actualización de posiciones de productos en una categoría.
-* Dentro de la simplificación del código, se quito un parametro innecesario "mode" dentro de el CLI Command y GraphQl.
-
+Para la versión 1.2.1 se realizó las siguientes mejoras:
+* Nuevo comando para reorganizar productos en categoria por su id, name o sku.
+* Mejoras en validadores.
 ---
 
 ## Dudas o Preguntas
