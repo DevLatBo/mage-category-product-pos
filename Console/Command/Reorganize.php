@@ -29,6 +29,10 @@ class Reorganize extends Command
         $this->validator = $validator;
     }
 
+    /**
+     * Configure the command with its name, description and options.
+     * @return void
+     */
     protected function configure(): void
     {
         $this->setName('devlat:category:reorganize');
@@ -59,7 +63,6 @@ class Reorganize extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $inputs = [
             'category' => $input->getOption(self::CATEGORY),
             'type' => $input->getOption(self::TYPE),
@@ -69,9 +72,11 @@ class Reorganize extends Command
 
         $category   =   $inputs['category'];
         $type       =   $inputs['type'];
-        $categoryId =   $this->validator->getCategoryId($category);
+        $categoryId =   $this->validator->getCategoryIdByName($category);
 
         $this->dataService->sortCategoryProducts($categoryId, $type);
+
+        $output->writeln(__('<comment>Products in category "%1" have been reorganized by "%2".</comment>', $category, $type));
 
         return Command::SUCCESS;
     }

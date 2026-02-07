@@ -33,6 +33,16 @@ class ProductPosition implements ResolverInterface
         $this->validator = $validator;
     }
 
+    /**
+     * GraphQL query to set the product position in the category.
+     * @param Field $field
+     * @param $context
+     * @param ResolveInfo $info
+     * @param array|null $value
+     * @param array|null $args
+     * @return array[]
+     * @throws \Exception
+     */
     public function resolve(
         Field $field,
         $context,
@@ -51,7 +61,7 @@ class ProductPosition implements ResolverInterface
 
 
         // Validation of category.
-        $categoryId = $this->validator->getCategoryId($category);
+        $categoryId = $this->validator->getCategoryIdByName($category);
 
         $newPosition        =   null;
         $canChangePosition  =   $this->validator->checkProductInCategory($categoryId, $sku);

@@ -112,7 +112,7 @@ class Validator
      * @throws ValidationException
      * @throws LocalizedException
      */
-    public function getCategoryId(string $name): int {
+    public function getCategoryIdByName(string $name): int {
         $category = $this->categoryCollectionFactory->create()
             ->addAttributeToFilter('name', $name)
             ->setPageSize(1)

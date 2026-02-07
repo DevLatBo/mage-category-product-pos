@@ -41,6 +41,7 @@ class ProductPosition extends Command
     }
 
     /**
+     * Configure the command with its name, description and options.
      * @return void
      */
     protected function configure()
@@ -72,6 +73,9 @@ class ProductPosition extends Command
     }
 
     /**
+     * Execute the command to change the product position in the category.
+     * @param InputInterface $input
+     * @param OutputInterface $output
      * @throws ValidationException
      * @throws LocalizedException
      * @throws \Exception
@@ -89,7 +93,7 @@ class ProductPosition extends Command
 
         // Validation of category.
         $category           =   $inputs['category'];
-        $categoryId         =   $this->validator->getCategoryId($category);
+        $categoryId         =   $this->validator->getCategoryIdByName($category);
 
         $sku                =   $inputs['sku'];
         $jump               =   intval($inputs['jump']);
