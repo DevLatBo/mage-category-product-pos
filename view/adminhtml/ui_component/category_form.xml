@@ -8,5 +8,10 @@
             <opened>false</opened>
             <label translate="true">Category Products Pos</label>
         </settings>
+        <container name="category_products_position_container" sortOrder="165">
+            <htmlContent name="htmlContent">
+                <block name="product_position" class="Devlat\CategoryProductPos\Block\Adminhtml\Category\ProductPos" />
+            </htmlContent>
+        </container>
     </fieldset>
 </form>
