@@ -13,11 +13,19 @@ $productsCollection = $block->getProductsCollection();
 <div class="admin-product-pos-list">
     <?php foreach ($productsCollection as $product): ?>
         <div class="admin-product-card">
-            <img src="<?= $block->getProductImageUrl($product); ?>" width="80" />
-            <div>
-                <strong><?= $block->escapeHtml($product->getName()) ?></strong><br>
-                SKU: <?= $block->escapeHtml($product->getSku()) ?><br>
-                Pos: <?= (int)$product->getData('position') ?>
+            <div class="product-image">
+                <img src="<?= $block->getProductImageUrl($product); ?>" width="80" />
+            </div>
+            <div class="product-content">
+                <div class="product-name">
+                    <strong><?= $block->escapeHtml($product->getName()) ?></strong>
+                </div>
+                <div class="product-info">
+                    <p>
+                        <?= __('SKU: ')?>
+                        <span><?= $block->escapeHtml($product->getSku());?></span>
+                    </p>
+                </div>
             </div>
         </div>
     <?php endforeach; ?>
