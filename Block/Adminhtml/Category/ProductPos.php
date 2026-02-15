@@ -131,12 +131,23 @@ class ProductPos extends Template
         return $collection;
     }
 
-    public function getProductImageUrl(Product $product) {
-        $imageUrl = $this->imageHelper->init($product, 'product_page_image_small')
-            ->setImageFile($product->getSmallImage())
-            ->resize(300)
-            ->getUrl();
-        return $imageUrl;
+    /**
+     * Returns the product image url, in case the product doesn't have an image, it returns the placeholder image url.
+     * @param Product $product
+     * @return string
+     */
+    public function getProductImageUrl(Product $product): string
+    {
+        $productImage = (string)$product->getSmallImage();
+
+        if ($productImage === '' || $productImage === 'no_selection') {
+            return $this->imageHelper->getDefaultPlaceholderUrl('small_image');
+        }
+        $imageHelper = $this->imageHelper
+            ->init($product, 'product_page_image_small')
+            ->setImageFile($productImage)
+            ->resize(300);
+        return $imageHelper->getUrl();
     }
 
 }
