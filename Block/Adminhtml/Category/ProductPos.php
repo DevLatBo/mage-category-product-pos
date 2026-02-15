@@ -5,6 +5,8 @@ namespace Devlat\CategoryProductPos\Block\Adminhtml\Category;
 use Magento\Backend\Block\Template;
 use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Catalog\Helper\Image as ImageHelper;
+use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -45,12 +47,17 @@ class ProductPos extends Template
      * @var ProductCollectionFactory
      */
     private ProductCollectionFactory $productCollectionFactory;
+    /**
+     * @var ImageHelper
+     */
+    private ImageHelper $imageHelper;
 
     public function __construct(
         Template\Context $context,
         RequestInterface $request,
         CategoryRepositoryInterface $categoryRepository,
         ProductCollectionFactory $productCollectionFactory,
+        ImageHelper $imageHelper,
         array $data = [],
         ?JsonHelper $jsonHelper = null,
         ?DirectoryHelper $directoryHelper = null
@@ -62,13 +69,24 @@ class ProductPos extends Template
         $this->request = $request;
         $this->categoryRepository = $categoryRepository;
         $this->productCollectionFactory = $productCollectionFactory;
+        $this->imageHelper = $imageHelper;
     }
 
-    public function getCategoryId() {
+    /**
+     * Returns the category ID from the request parameters.
+     * @return int
+     */
+    public function getCategoryId():int
+    {
         return (int)($this->request->getParam('id') ?? 0);
     }
 
-    public function getCategory() {
+    /**
+     * Returns the category instance based on the category ID from the request parameters.
+     * @return CategoryInterface|null
+     */
+    public function getCategory(): ?CategoryInterface
+    {
         if ($this->loadedCategory !== null) {
             return $this->loadedCategory;
         }
@@ -89,6 +107,10 @@ class ProductPos extends Template
         return $this->loadedCategory;
     }
 
+    /**
+     * Returns product collection ordered by position for the current category.
+     * @return ProductCollection|null
+     */
     public function getProductsCollection(): ?ProductCollection
     {
         $category = $this->getCategory();
@@ -107,6 +129,14 @@ class ProductPos extends Template
         $collection->getSelect()->order('ccp.position ASC');
 
         return $collection;
+    }
+
+    public function getProductImageUrl(Product $product) {
+        $imageUrl = $this->imageHelper->init($product, 'product_page_image_small')
+            ->setImageFile($product->getSmallImage())
+            ->resize(300)
+            ->getUrl();
+        return $imageUrl;
     }
 
 }
