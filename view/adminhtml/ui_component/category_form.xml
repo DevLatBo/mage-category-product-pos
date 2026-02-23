@@ -6,7 +6,7 @@
         <settings>
             <collapsible>true</collapsible>
             <opened>false</opened>
-            <label translate="true">Category Products Pos</label>
+            <label translate="true">Reorganize Products</label>
         </settings>
         <container name="category_products_position_container" sortOrder="165">
             <htmlContent name="htmlContent">

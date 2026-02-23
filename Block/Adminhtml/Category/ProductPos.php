@@ -26,6 +26,12 @@ class ProductPos extends Template
     /** @var string  */
     private CONST CATEGORY_PRODUCT_TABLE = 'catalog_category_product';
 
+    /** @var string  */
+    private CONST IMAGE_TYPE = 'product_page_image_small';
+
+    /**
+     * @var CategoryInterface|null
+     */
     private ?CategoryInterface $loadedCategory = null;
     /**
      * @var JsonHelper|null
@@ -144,7 +150,7 @@ class ProductPos extends Template
             return $this->imageHelper->getDefaultPlaceholderUrl('small_image');
         }
         $imageHelper = $this->imageHelper
-            ->init($product, 'product_page_image_small')
+            ->init($product, self::IMAGE_TYPE)
             ->setImageFile($productImage)
             ->resize(300);
         return $imageHelper->getUrl();
