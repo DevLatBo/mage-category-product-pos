@@ -1,44 +1,57 @@
-.admin-product-pos-list {
-    display: flex;
-    grid-template-columns: repeat(auto-fill, minmax(minmax(160px, 1fr)));
-    gap: 20px;
-    padding: 15px;
-    flex-wrap: wrap;
-    .admin-product-card {
-        background: #F3F3F3;
-        border-radius: 12px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+.admin-product-position-container{
+    .admin-product-pos-list {
+        display: flex;
+        grid-template-columns: repeat(auto-fill, minmax(minmax(160px, 1fr)));
+        gap: 20px;
         padding: 15px;
-        text-align: center;
-        transition: all 0.2s ease-in-out;
-        cursor: pointer;
-        width: 160px;
-        &:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 14px rgba(0,0,0,0.15);
-        }
-        .product-image {
-            img {
-                max-width: 100%;
-                height: 120px;
-                object-fit: contain;
-                margin-bottom: 10px;
+        flex-wrap: wrap;
+        .admin-product-card {
+            background: #F3F3F3;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            padding: 15px;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            width: 160px;
+            &:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 25px 14px rgba(0,0,0,0.15);
             }
-        }
-        .product-content {
-            .product-name {
-                font-size: 14px;
-                font-weight: 600;
-                margin-bottom: 6px;
-                color: #333;
-            }
-            .product-info {
-                font-size: 12px;
-                color: #777;
-                span {
-                    font-weight: 500;
-                    color: #444;
+            .product-image {
+                img {
+                    max-width: 100%;
+                    height: 120px;
+                    object-fit: contain;
+                    margin-bottom: 10px;
                 }
+            }
+            .product-content {
+                .product-name {
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-bottom: 6px;
+                    color: #333;
+                }
+                .product-info {
+                    font-size: 12px;
+                    color: #777;
+                    span {
+                        font-weight: 500;
+                        color: #444;
+                    }
+                }
+            }
+        }
+    }
+    .admin-product-position-action {
+        form {
+            margin: 30px 0;
+            .button.primary {
+                padding: 15px 40px;
+                font-size: 2rem;
+                display: block;
+                margin: 0 auto;
             }
         }
     }

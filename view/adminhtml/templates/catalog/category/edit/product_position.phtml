@@ -3,26 +3,35 @@ $productsCollection = $block->getProductsCollection();
 
 //echo "<pre>";print_r($productsCollection->getData());echo "</pre>";
 ?>
-
-<div class="admin-product-pos-list">
-    <?php foreach ($productsCollection as $product): ?>
-        <div class="admin-product-card" data-id="<?= $product->getId(); ?>">
-            <div class="product-image">
-                <img src="<?= $block->getProductImageUrl($product); ?>" width="80" />
-            </div>
-            <div class="product-content">
-                <div class="product-name">
-                    <strong><?= $block->escapeHtml($product->getName()) ?></strong>
+<div class="admin-product-position-container">
+    <div class="admin-product-pos-list">
+        <?php foreach ($productsCollection as $product): ?>
+            <div class="admin-product-card" data-id="<?= $product->getId(); ?>">
+                <div class="product-image">
+                    <img src="<?= $block->getProductImageUrl($product); ?>" width="80" />
                 </div>
-                <div class="product-info">
-                    <p>
-                        <?= __('SKU: ')?>
-                        <span><?= $block->escapeHtml($product->getSku());?></span>
-                    </p>
+                <div class="product-content">
+                    <div class="product-name">
+                        <strong><?= $block->escapeHtml($product->getName()) ?></strong>
+                    </div>
+                    <div class="product-info">
+                        <p>
+                            <?= __('SKU: ')?>
+                            <span><?= $block->escapeHtml($product->getSku());?></span>
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
+    </div>
+    <div class="admin-product-position-action">
+        <form action="POST" action="" id="product_positions_form">
+            <input type="hidden" name="product_positions" id="product_positions" value="" />
+            <button class="button primary" type="submit">
+                <span><?= __('Update Products Order') ?></span>
+            </button>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -42,22 +51,25 @@ $productsCollection = $block->getProductsCollection();
                         const id = $(this).data('id');
                         console.log('Product:', id, 'Position:', index);
                     });
-
-                    $.ajax({
-                        url: "<?= $block->getUrl('position/category/product') ?>",
-                        method: 'POST',
-                        dataType: 'json',
-                        data: {
-                            form_key: window.FORM_KEY,
-                            param1: 'test',
-                        },
-                        success: function (response) {
-                            console.log('Position updated successfully for product ID:', id);
-                        },
-                    });
                 }
             });
-
             $list.disableSelection();
+
+            $('#product_positions_form').submit(function(e) {
+                e.preventDefault();
+                console.log("clicked here!");
+                $.ajax({
+                    url: "<?= $block->getUrl('position/category/product') ?>",
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        form_key: window.FORM_KEY,
+                        param1: 'test',
+                    },
+                    success: function (response) {
+                        console.log('Position updated successfully');
+                    },
+                });
+            })
         });
 </script>
