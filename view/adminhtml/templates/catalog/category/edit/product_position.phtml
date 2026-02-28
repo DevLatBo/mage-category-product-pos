@@ -1,5 +1,6 @@
 <?php
 $productsCollection = $block->getProductsCollection();
+$categoryId = $block->getCategoryId();
 
 //echo "<pre>";print_r($productsCollection->getData());echo "</pre>";
 ?>
@@ -40,6 +41,8 @@ $productsCollection = $block->getProductsCollection();
         ],
         function($) {
             const $list = $('.admin-product-pos-list');
+            const categoryId = <?= $categoryId ?>;
+            let categoryProducts = [];
 
             $list.sortable({
                 items: '.admin-product-card',
@@ -47,27 +50,32 @@ $productsCollection = $block->getProductsCollection();
                 tolerance: 'pointer',
                 placeholder: 'admin-product-card-placeholder',
                 update: function () {
+                    categoryProducts = [];
                     $list.find('.admin-product-card').each(function (index) {
                         const id = $(this).data('id');
                         console.log('Product:', id, 'Position:', index);
+                        categoryProducts.push({
+                            "productId": id,
+                            "position": index
+                        });
                     });
                 }
             });
             $list.disableSelection();
-
             $('#product_positions_form').submit(function(e) {
                 e.preventDefault();
-                console.log("clicked here!");
+                let categoryProductsJson = JSON.stringify(categoryProducts);
                 $.ajax({
                     url: "<?= $block->getUrl('position/category/product') ?>",
                     method: 'POST',
                     dataType: 'json',
                     data: {
                         form_key: window.FORM_KEY,
-                        param1: 'test',
+                        cat_prods: categoryProductsJson,
+                        category_id: categoryId,
                     },
                     success: function (response) {
-                        console.log('Position updated successfully');
+                        window.location.reload();
                     },
                 });
             })
