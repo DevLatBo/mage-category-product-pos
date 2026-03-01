@@ -44,7 +44,7 @@ class ProductPosition extends Command
      * Configure the command with its name, description and options.
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('devlat:category:position');
         $this->setDescription('The command will help you to organize your product(s) in a specific category.');
@@ -80,7 +80,7 @@ class ProductPosition extends Command
      * @throws LocalizedException
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // Input data validation.
         $inputs = array(

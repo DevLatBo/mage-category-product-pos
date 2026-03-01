@@ -75,7 +75,9 @@ $categoryId = $block->getCategoryId();
                         category_id: categoryId,
                     },
                     success: function (response) {
-                        window.location.reload();
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        }
                     },
                 });
             })

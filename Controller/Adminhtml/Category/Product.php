@@ -7,14 +7,31 @@ use Magento\Backend\App\Action\Context;
 use Magento\Catalog\Model\Category as CategoryModel;
 use Magento\Catalog\Model\ResourceModel\Category as CategoryResourceModel;
 use Magento\Catalog\Model\CategoryRepository;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 
 class Product extends Action
 {
+    /**
+     * @var JsonFactory
+     */
     private JsonFactory $resultJsonFactory;
+    /**
+     * @var CategoryRepository
+     */
     private CategoryRepository $categoryRepository;
+    /**
+     * @var CategoryResourceModel
+     */
     private CategoryResourceModel $categoryResourceModel;
 
+    /**
+     * Constructor.
+     * @param JsonFactory $resultJsonFactory
+     * @param CategoryRepository $categoryRepository
+     * @param CategoryResourceModel $categoryResourceModel
+     * @param Context $context
+     */
     public function __construct(
         JsonFactory $resultJsonFactory,
         CategoryRepository $categoryRepository,
@@ -27,7 +44,11 @@ class Product extends Action
         $this->categoryResourceModel = $categoryResourceModel;
     }
 
-    public function execute()
+    /**
+     * Updates category products positions and refresh the page.
+     * @return Json
+     */
+    public function execute(): Json
     {
 
         $params = $this->getRequest()->getParams();
@@ -39,14 +60,21 @@ class Product extends Action
             $categoryProducts[$catProduct['productId']] = $catProduct['position'];
         }
 
-        /** @var CategoryModel $category */
-        $category = $this->categoryRepository->get($categoryId);
-        $category->setData('posted_products', $categoryProducts);
+        try {
+            /** @var CategoryModel $category */
+            $category = $this->categoryRepository->get($categoryId);
+            $category->setData('posted_products', $categoryProducts);
 
-        $this->categoryResourceModel->save($category);
+            $this->categoryResourceModel->save($category);
+        } catch (\Exception $e) {
+
+        }
 
         return $this->resultJsonFactory->create()->setData([
-            'success' => true,
+            'success'       =>  true,
+            'redirect_url'   =>  $this->_url->getUrl(
+                'catalog/category/edit',
+                ['id' => $categoryId])
         ]);
     }
 }

@@ -58,6 +58,17 @@ class ProductPos extends Template
      */
     private ImageHelper $imageHelper;
 
+    /**
+     * Constructor.
+     * @param Template\Context $context
+     * @param RequestInterface $request
+     * @param CategoryRepositoryInterface $categoryRepository
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param ImageHelper $imageHelper
+     * @param array $data
+     * @param JsonHelper|null $jsonHelper
+     * @param DirectoryHelper|null $directoryHelper
+     */
     public function __construct(
         Template\Context $context,
         RequestInterface $request,
