@@ -3,6 +3,8 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Devlat_CategoryProductPos">
         <sequence>
+            <module name="Magento_Backend"/>
+            <module name="Magento_Directory"/>
             <module name="Magento_Catalog"/>
         </sequence>
     </module>

@@ -11,13 +11,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Reorganize extends Command
 {
+    /** @var string  */
     private CONST CATEGORY = 'category';
 
+    /** @var string  */
     private CONST TYPE = 'type';
 
+    /**
+     * @var Validator
+     */
     private Validator $validator;
+    /**
+     * @var Data
+     */
     private Data $dataService;
 
+    /**
+     * Constructor.
+     * @param Data $dataService
+     * @param Validator $validator
+     * @param string|null $name
+     */
     public function __construct(
         Data $dataService,
         Validator $validator,
