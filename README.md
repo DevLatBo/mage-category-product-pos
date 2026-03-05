@@ -14,6 +14,7 @@ Si existen dudas, observaciones, errores encontrados, ir a Issues y hacer el rep
   * [Funcionamiento](#funcionamiento)
     * [CLI Command](#cli-command)
     * [GraphQl](#graphql) 
+    * [Admin](#admin)
 * [Actualizaciones](#actualizaciones)
 * [Dudas o Preguntas](#dudas-o-preguntas)
 ---
@@ -30,9 +31,10 @@ Puede descargarla en la página oficial de [Adobe Commerce](https://business.ado
 
 ## Proyecto
 
-Este proyecto consiste en un módulo para ordenar un producto de una categoría en específico por su posición para la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico y realizar el cambio de manera mas sencilla y rápida.
-La tarea de cambiar posición de un producto dentro de una categoría puede realizarse de dos formas ya sea por medio del uso de un CLI Command o por medio de GraphQl y así ver el cambio dentro del Product List Page (PLP).
-
+Este proyecto consiste en un módulo para ordenar un producto de una categoría en específico por su posición para 
+la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico 
+y realizar el cambio de manera mas sencilla y rápida ya sea por medio 
+de un comando, graphql request o gráficamente desde el admin.
 ---
 
 ## Versiones
@@ -51,7 +53,8 @@ Luego para instalar el proyecto dentro de magento framework realiza los siguient
 ---
 
 ## Funcionamiento
-Tenemos dos formas para poder trabajar con este módulo para el salto de posiciones del producto dentro de una categoría.
+Tenemos tres formas para poder trabajar con este módulo para el salto de posiciones y/o 
+reorganizar el orden de los productos para la PLP (Product List Page).
 
 ### CLI Command
 Para esto debes tomar en cuenta lo siguiente:
@@ -113,15 +116,26 @@ Dando como salida el siguiente resultado bajo el formato que se dio en schema:
     }
 }
 ```
+
+
 Dentro de ProductPosition tenemos el nodo **product** y tenemos los datos de category, que es el nombre de la categoria en el cual el producto esta, 
 luego se tiene el **sku** del producto, **newPosition** es el dato que contiene la posición que se actualizó.
+
+### Admin
+Puede dirigirse al admin: **Admin > Catalog > Categories** ahi vera una nueva seccion
+*llamado Reorganize Products*.
+
+Cuando abra esa sección, podrá notar que aparece una lista de productos, ya desde ahí usted puede mover con
+el mouse un producto y posicionarla si quiere que vaya antes o despues de otro producto, simplemente es arrastrar y
+dejarlo en una posición que usted desee y cambiar el orden que usted desee  para el Product List Page de esa categoria
+despues de dar clic al boton de **Update Products Order**.
 
 ---
 
 ## Actualizaciones
-Para la versión 1.2.1 se realizó las siguientes mejoras:
-* Nuevo comando para reorganizar productos en categoria por su id, name o sku.
-* Mejoras en validadores.
+Para la versión 1.3.0 se realizó las siguientes mejoras:
+* Validación mejorada para CLI Command y GraphQL.
+* Nueva seccion en admin (Admin > Catalog > Categories), para el reordenamiento por medio de Drag & Drop.
 ---
 
 ## Dudas o Preguntas
