@@ -66,8 +66,10 @@ class Product extends Action
             $category->setData('posted_products', $categoryProducts);
 
             $this->categoryResourceModel->save($category);
-        } catch (\Exception $e) {
 
+            $this->messageManager->addSuccessMessage(__("Product positions updated."));
+        } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage(__('Something went wrong while updating product positions.'));
         }
 
         return $this->resultJsonFactory->create()->setData([
