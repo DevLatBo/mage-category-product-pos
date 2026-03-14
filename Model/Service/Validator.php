@@ -2,6 +2,8 @@
 
 namespace Devlat\CategoryProductPos\Model\Service;
 
+use Exception;
+use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Validation\ValidationException;
@@ -18,6 +20,10 @@ class Validator
      * @var CategoryCollectionFactory
      */
     private CategoryCollectionFactory $categoryCollectionFactory;
+    /**
+     * @var CategoryRepository
+     */
+    private CategoryRepository $categoryRepository;
 
     /**
      * Constructor.
@@ -26,11 +32,13 @@ class Validator
      */
     public function __construct(
         ProductRepository $productRepository,
-        CategoryCollectionFactory $categoryCollectionFactory
+        CategoryCollectionFactory $categoryCollectionFactory,
+        CategoryRepository $categoryRepository
     )
     {
         $this->productRepository = $productRepository;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -127,5 +135,26 @@ class Validator
             );
         }
         return $categoryId;
+    }
+
+    /**
+     * Sequence Order Check.
+     * @param int $categoryId
+     * @return void
+     * @throws Exception
+     */
+    public function hasSequenceOrder(int $categoryId): void {
+
+        $category = $this->categoryRepository->get($categoryId);
+        $positions = $category->getProductsPosition();
+        asort($positions, SORT_NUMERIC);
+
+        $values = array_map('intval', array_values($positions));
+
+        for ($i = 1; $i < count($values); $i++) {
+            if ($values[$i] !== $values[$i - 1] + 1) {
+                throw new Exception(__("No sequence order detected in this category"));
+            }
+        }
     }
 }

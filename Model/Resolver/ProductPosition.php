@@ -65,6 +65,9 @@ class ProductPosition implements ResolverInterface
 
         $newPosition        =   null;
         $canChangePosition  =   $this->validator->checkProductInCategory($categoryId, $sku);
+
+        $this->validator->hasSequenceOrder($categoryId);
+
         if ($canChangePosition) {
             $productsMoved  =   $this->dataService->setProductPositions($categoryId, $sku, $jump);
             $newPosition    =   $productsMoved['pos'] ?? null;

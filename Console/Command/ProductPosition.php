@@ -99,6 +99,8 @@ class ProductPosition extends Command
         $jump               =   intval($inputs['jump']);
         $canChangePosition  =   $this->validator->checkProductInCategory($categoryId, $sku);
 
+        $this->validator->hasSequenceOrder($categoryId);
+
         if ($canChangePosition) {
             $productMoved = $this->dataService->setProductPositions($categoryId, $sku, $jump);
             $output->writeln(

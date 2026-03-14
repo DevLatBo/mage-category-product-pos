@@ -57,7 +57,8 @@ class Data
         try {
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
-            $newProductsPositions = $this->organizingProductPositions($sku, $category, $jump);
+            $productsPositions = $category->getProductsPosition();
+            $newProductsPositions = $this->organizingProductPositions($sku, $productsPositions, $jump);
 
             $category->setData('posted_products', $newProductsPositions);
             $this->category->save($category);
@@ -78,20 +79,19 @@ class Data
     /**
      *  Method in charge of generating the new position of the product and reordering the other products accordingly.
      * @param string $sku
-     * @param CategoryModel $category
+     * @param array $productsPos
      * @param int $jump
      * @return array
      * @throws NoSuchEntityException
      */
-    private function organizingProductPositions(string $sku, CategoryModel $category, int $jump): array
+    private function organizingProductPositions(string $sku, array $productsPos, int $jump): array
     {
-        $productsPositions = $category->getProductsPosition();
-        $numberOfProducts = $category->getProductCount();
+        $numberOfProducts = count($productsPos);
 
         $product = $this->productRepository->get($sku);
         $productId = $product->getId();
 
-        $oldPos = $productsPositions[$productId];
+        $oldPos = $productsPos[$productId];
         $newPos = $oldPos + $jump;
 
         if ($newPos >= $numberOfProducts) {
@@ -99,21 +99,21 @@ class Data
         } elseif ($newPos < 0) {
             $newPos = 0;
         }
-        asort($productsPositions);
+        asort($productsPos);
 
-        foreach ($productsPositions as $prodId => $pos) {
+        foreach ($productsPos as $prodId => $pos) {
             if ($prodId === $productId) continue;
 
             if ($jump > 0 && $pos > $oldPos && $pos <= $newPos) {
-                $productsPositions[$prodId] = $pos - 1;
+                $productsPos[$prodId] = $pos - 1;
 
             } else if ($jump < 0 && $pos < $oldPos && $pos >= $newPos) {
-                $productsPositions[$prodId] = $pos + 1;
+                $productsPos[$prodId] = $pos + 1;
             }
         }
-        $productsPositions[$productId] = $newPos;
+        $productsPos[$productId] = $newPos;
 
-        return $productsPositions;
+        return $productsPos;
     }
 
     /**
