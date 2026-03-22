@@ -2,6 +2,8 @@
 
 namespace Devlat\CategoryProductPos\Block\Adminhtml\Category;
 
+use Exception;
+use Devlat\CategoryProductPos\Model\Service\Validator as ServiceValidator;
 use Magento\Backend\Block\Template;
 use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
@@ -57,6 +59,10 @@ class ProductPos extends Template
      * @var ImageHelper
      */
     private ImageHelper $imageHelper;
+    /**
+     * @var ServiceValidator
+     */
+    private ServiceValidator $serviceValidator;
 
     /**
      * Constructor.
@@ -75,6 +81,7 @@ class ProductPos extends Template
         CategoryRepositoryInterface $categoryRepository,
         ProductCollectionFactory $productCollectionFactory,
         ImageHelper $imageHelper,
+        ServiceValidator $serviceValidator,
         array $data = [],
         ?JsonHelper $jsonHelper = null,
         ?DirectoryHelper $directoryHelper = null
@@ -87,6 +94,7 @@ class ProductPos extends Template
         $this->categoryRepository = $categoryRepository;
         $this->productCollectionFactory = $productCollectionFactory;
         $this->imageHelper = $imageHelper;
+        $this->serviceValidator = $serviceValidator;
     }
 
     /**
@@ -165,6 +173,16 @@ class ProductPos extends Template
             ->setImageFile($productImage)
             ->resize(300);
         return $imageHelper->getUrl();
+    }
+
+    public function checkSequenceOrder(int $categoryId): ?string
+    {
+        try {
+            $this->serviceValidator->hasSequenceOrder($categoryId);
+            return null;
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
     }
 
 }

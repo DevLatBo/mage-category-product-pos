@@ -1,9 +1,16 @@
 <?php
 $productsCollection = $block->getProductsCollection();
-$categoryId = $block->getCategoryId();
+$categoryId = intval($block->getCategoryId());
 
-//echo "<pre>";print_r($productsCollection->getData());echo "</pre>";
 ?>
+
+<?php if ($errorMessage = $block->checkSequenceOrder($categoryId)): ?>
+<div class="messages">
+    <div class="message message-error error">
+        <div><?=  $block->escapeHtml($errorMessage) ?></div>
+    </div>
+</div>
+<?php else: ?>
 <div class="admin-product-position-container">
     <div class="admin-product-pos-list">
         <?php foreach ($productsCollection as $product): ?>
@@ -62,6 +69,7 @@ $categoryId = $block->getCategoryId();
                 }
             });
             $list.disableSelection();
+
             $('#product_positions_form').submit(function(e) {
                 e.preventDefault();
                 let categoryProductsJson = JSON.stringify(categoryProducts);
@@ -83,3 +91,4 @@ $categoryId = $block->getCategoryId();
             })
         });
 </script>
+<?php endif;?>
