@@ -133,9 +133,10 @@ despues de dar clic al boton de **Update Products Order**.
 ---
 
 ## Actualizaciones
-Para la versión 1.3.0 se realizó las siguientes mejoras:
-* Validación mejorada para CLI Command y GraphQL.
-* Nueva seccion en admin (Admin > Catalog > Categories), para el reordenamiento por medio de Drag & Drop.
+Para la versión 1.3.1 se realizó las siguientes mejoras:
+* Mostrar mensaje de confirmacion despues de cambiar orden de productos en el admin.
+* Validacion de orden secuencial en posicion de productos en categoria.
+
 ---
 
 ## Dudas o Preguntas
