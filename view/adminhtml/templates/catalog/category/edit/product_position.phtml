@@ -4,7 +4,7 @@ $categoryId = intval($block->getCategoryId());
 
 ?>
 
-<?php if ($errorMessage = $block->checkSequenceOrder($categoryId)): ?>
+<?php if ($errorMessage = $block->isAvailable($categoryId)): ?>
 <div class="messages">
     <div class="message message-error error">
         <div><?=  $block->escapeHtml($errorMessage) ?></div>

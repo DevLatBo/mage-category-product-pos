@@ -13,6 +13,7 @@ use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 
@@ -175,14 +176,23 @@ class ProductPos extends Template
         return $imageHelper->getUrl();
     }
 
-    public function checkSequenceOrder(int $categoryId): ?string
+    /**
+     * Validates if category reorganizer is available.
+     * @param int $categoryId
+     * @return string|null
+     * @throws Exception
+     */
+    public function isAvailable(int $categoryId): ?string
     {
-        try {
-            $this->serviceValidator->hasSequenceOrder($categoryId);
-            return null;
-        } catch(Exception $e) {
-            return $e->getMessage();
+        if (!$this->serviceValidator->containProducts($categoryId)) {
+            return (string)__("The category does not contain any products.");
         }
+
+        if (!$this->serviceValidator->hasSequenceOrder($categoryId)) {
+            return (string)__("The category products do not have a sequential position order.");
+        }
+
+        return null;
     }
 
 }

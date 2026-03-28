@@ -143,8 +143,8 @@ class Validator
      * @return void
      * @throws Exception
      */
-    public function hasSequenceOrder(int $categoryId): void {
-
+    public function hasSequenceOrder(int $categoryId): bool {
+        $flag = true;
         $category = $this->categoryRepository->get($categoryId);
         $positions = $category->getProductsPosition();
         asort($positions, SORT_NUMERIC);
@@ -153,8 +153,22 @@ class Validator
 
         for ($i = 1; $i < count($values); $i++) {
             if ($values[$i] !== $values[$i - 1] + 1) {
-                throw new Exception(__("No sequence order detected in this category"));
+                //throw new Exception(__("No sequence order detected in this category"
+                $flag = false;
+                break;
             }
         }
+        return $flag;
+    }
+
+    /**
+     * Checks if the specific category contains products.
+     * @param int $categoryId
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function containProducts(int $categoryId): bool
+    {
+        return $this->categoryRepository->get($categoryId)->getProductCount() > 0;
     }
 }
