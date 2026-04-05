@@ -6,7 +6,7 @@ use Exception;
 use Magento\Catalog\Model\Category as CategoryModel;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ProductRepository;
-use Magento\Catalog\Model\ResourceModel\Category;
+use Magento\Catalog\Model\ResourceModel\Category as CategoryResourceModel;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -22,9 +22,9 @@ class Data
      */
     private CategoryRepository $categoryRepository;
     /**
-     * @var Category
+     * @var CategoryResourceModel
      */
-    private Category $category;
+    private CategoryResourceModel $categoryResourceModel;
     /**
      * @var ProductCollectionFactory
      */
@@ -33,13 +33,13 @@ class Data
     public function __construct(
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
-        Category $category,
+        CategoryResourceModel $categoryResourceModel,
         ProductCollectionFactory $productCollectionFactory
     )
     {
         $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
-        $this->category = $category;
+        $this->categoryResourceModel = $categoryResourceModel;
         $this->productCollectionFactory = $productCollectionFactory;
     }
 
@@ -55,13 +55,13 @@ class Data
     {
         $productPositioned = array();
         try {
-            /** @var CategoryModel $category */
-            $category = $this->categoryRepository->get($categoryId);
-            $productsPositions = $category->getProductsPosition();
+            /** @var CategoryModel $categoryMod */
+            $categoryMod = $this->categoryRepository->get($categoryId);
+            $productsPositions = $categoryMod->getProductsPosition();
             $newProductsPositions = $this->organizingProductPositions($sku, $productsPositions, $jump);
 
-            $category->setData('posted_products', $newProductsPositions);
-            $this->category->save($category);
+            $categoryMod->setData('posted_products', $newProductsPositions);
+            $this->categoryResourceModel->save($categoryMod);
 
             $product = $this->productRepository->get($sku);
             $productPositioned = array(
@@ -146,7 +146,7 @@ class Data
             /** @var CategoryModel $category */
             $category = $this->categoryRepository->get($categoryId);
             $category->setData('posted_products', $productsOrdered);
-            $this->category->save($category);
+            $this->categoryResourceModel->save($category);
         } catch (Exception $e) {
             throw new Exception(__($e->getMessage()));
         }

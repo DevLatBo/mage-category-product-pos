@@ -151,9 +151,13 @@ class Validator
 
         $values = array_map('intval', array_values($positions));
 
+        if(empty($values) || $values[0] !== 0) {
+            return false;
+        }
+
+
         for ($i = 1; $i < count($values); $i++) {
             if ($values[$i] !== $values[$i - 1] + 1) {
-                //throw new Exception(__("No sequence order detected in this category"
                 $flag = false;
                 break;
             }
