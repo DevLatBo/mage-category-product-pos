@@ -65,17 +65,20 @@ class CategoryPrepareSave implements ObserverInterface
         $logger->info("new product positions");
         $logger->info(print_r($newProductPos, true));
 
-        if ( count($newProductPos) !== count($actualProductsPos)) {
-            $productsPosUpdated = $this->fixSequenceOrder($newProductPos, $categoryId);
+        if (is_array($newProductPos) && !empty($newProductPos)) {
+            $logger->info("entro aca: ".$categoryId);
+            $productsPosUpdated = $this->fixSequenceOrder($newProductPos);
+            $logger->info(print_r($productsPosUpdated, true));
+
             /** @var CategoryModel $categoryMod */
             $categoryMod = $this->categoryRepository->get($categoryId);
-            $categoryMod->setData('posted_products', $productsPosUpdated);
+            $categoryMod->setPostedProducts($productsPosUpdated);
             $this->categoryResourceModel->save($categoryMod);
         }
 
     }
 
-    private function fixSequenceOrder(array $productPositions, int $categoryId): array
+    private function fixSequenceOrder(array $productPositions): array
     {
         $orderedProducts = [];
         $index = 0;
