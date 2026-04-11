@@ -17,13 +17,25 @@ class CategoryPrepareSave implements ObserverInterface
 
         $category = $observer->getEvent()->getCategory();
 
-        $newProductPos = $category->getPostedProducts();
-        asort($newProductPos);
+        $currentProducts = $category->getProductsPosition();
+        $postedProducts = $category->getPostedProducts();
+
+        // Detects removed products: Compares the products in DB with the ones removed.
+        $removedProducts = array_diff_key($currentProducts ?? [], $postedProducts ?? []);
+
+        // Detects added products: Products added recently, but not included in DB.
+        $addedProducts = array_diff_key($postedProducts ?? [], $currentProducts ?? []);
 
 
-        if (is_array($newProductPos) && !empty($newProductPos)) {
-            $productsPosUpdated = $this->reindexPositions($newProductPos);
-            $category->setData('posted_products',$productsPosUpdated);
+        if (empty($removedProducts) && empty($addedProducts)) {
+            return;
+        }
+
+        asort($postedProducts);
+
+        if (!empty($postedProducts)) {
+            $productsPosUpdated = $this->reindexPositions($postedProducts);
+            $category->setData('posted_products', $productsPosUpdated);
         }
     }
 
