@@ -1,85 +1,85 @@
-# Módulo CategoryProductPos en Magento2.
+# Magento2 module: CategoryProductPos.
 
-Este es un proyecto trabajado por el **Ing. Oscar Rolando Gamboa Acho** con el fin de aportar a otros developers en el desarrollo de nuevos módulos y/o sistemas completos para sus proyectos.
+This is a project developed by **Oscar Rolando Gamboa Acho** with the goal of contributing to other developers in the creation of new modules and/or complete systems for their projects.
 
-Si existen dudas, observaciones, errores encontrados, ir a Issues y hacer el reporte sobre algun detalle para corregir y poder mejorar el módulo que se encuentra en este repositorio. :nerd_face:
-
----
-
-## CONTENIDO
-* [Sobre Magento](#sobre-magento)
-* [Proyecto](#proyecto)
-  * [Versiones](#versiones)
-  * [Instalar](#instalar)
-  * [Funcionamiento](#funcionamiento)
-    * [CLI Command](#cli-command)
-    * [GraphQl](#graphql) 
-    * [Admin](#admin)
-* [Actualizaciones](#actualizaciones)
-* [Dudas o Preguntas](#dudas-o-preguntas)
----
-
-## Sobre Magento
-Es una plataforma de comercio electrónico open source o código liberado mediante el que se pueden gestionar todo tipo de e-Commerce, tambien existe el enterprise, pero este ultimo tiene un costo y mas caracteristicas.
-
-Magento permite construir una tienda online a medida. Es una herramienta que cuenta con determinadas funcionalidades y de código abierto.
-
-En un principio, surgió en 2007, y se lanzó al mercado como solución de comercio electrónico. Ahora cuenta con más funcionalidades, y varias versiones en función de las necesidades o el volumen de cada comercio online.
-Puede descargarla en la página oficial de [Adobe Commerce](https://business.adobe.com/la/products/magento/open-source.html) o descargarlo por una version en específica en [Github](https://github.com/magento/magento2).
+If you have any doubts, observations, or errors found, go to Issues and report any details to correct and improve the module available in this repository. :nerd_face:
 
 ---
 
-## Proyecto
-
-Este proyecto consiste en un módulo para ordenar un producto de una categoría en específico por su posición para 
-la PLP (Product List Page), esto con el fin de ordenar de acuerdo al gusto del cliente y/o equipo técnico 
-y realizar el cambio de manera mas sencilla y rápida ya sea por medio 
-de un comando, graphql request o gráficamente desde el admin.
+## CONTENTS
+* [About Magento](#about-magento)
+* [Project](#project)
+    * [Versions](#versions)
+    * [Install](#install)
+    * [How It Works](#how-it-works)
+        * [CLI Command](#cli-command)
+        * [GraphQl](#graphql)
+        * [Admin](#admin)
+* [Updates](#updates)
+* [Questions or Inquiries](#questions-or-inquiries)
 ---
 
-## Versiones
+## About Magento
+It is an open source e-commerce platform through which all types of e-Commerce can be managed. An enterprise version also exists, but the latter has a cost and more features.
+
+Magento allows you to build a custom online store. It is a tool that comes with certain functionalities and open source code.
+
+It originally emerged in 2007 and was launched as an e-commerce solution. It now has more functionalities and several versions depending on the needs or volume of each online store.
+You can download it from the official [Adobe Commerce](https://business.adobe.com/la/products/magento/open-source.html) page or download a specific version on [Github](https://github.com/magento/magento2).
+
+---
+
+## Project
+
+This project consists of a module to sort a product within a specific category by its position for
+the PLP (Product List Page), with the goal of ordering according to the client's and/or technical team's preference
+and making the change more easily and quickly, either through
+a command, a GraphQL request, or graphically from the admin.
+
+---
+
+## Versions
 * Magento 2.4.6 (Open Source).
 * PHP 8.1, 8.2, 8.3, 8.4.
 
 ---
 
-## Instalar
-La instalación del proyecto es muy sencillo, lo unico que puedes hacer es clonar este proyecto dentro del app/code en el framework, crea el directorio Devlat (en el mismo app/code) y luego clonas el directorio.
-Luego para instalar el proyecto dentro de magento framework realiza los siguientes pasos:
-* ```bin/magento module:status``` (verifica que tu módulo se encuentra dentro de los que no estan instalados que por default esta inactivo o deshabilitado).
-* Ejecuta el siguiente comando para habilitar el módulo: ```bin/magento module:enable Devlat_CategoryProductPos```.
-* Ejecuta ```bin/magento setup:upgrade``` para proceder con la instalacion del módulo.
+## Install
+Installing the project is very simple. All you need to do is clone this project inside the app/code directory in the framework, create the Devlat directory (also inside app/code), and then clone the directory there.
+Then, to install the project within the Magento framework, follow these steps:
+* ```bin/magento module:status``` (verify that your module appears in the list of uninstalled modules, which are disabled by default).
+* Run the following command to enable the module: ```bin/magento module:enable Devlat_CategoryProductPos```.
+* Run ```bin/magento setup:upgrade``` to proceed with the module installation.
 
 ---
 
-## Funcionamiento
-Tenemos tres formas para poder trabajar con este módulo para el salto de posiciones y/o 
-reorganizar el orden de los productos para la PLP (Product List Page).
+## How It Works
+We have three ways to work with this module for position jumping and/or
+reorganizing the product order for the PLP (Product List Page).
 
 ### CLI Command
-Para esto debes tomar en cuenta lo siguiente:
-* COMANDO #1:
-  * Debes declarar para que categoria hay que aplicar el cambio de posición de un producto, inserta el nombre de la categoria.
-  * Declara un producto para aplicar el cambio de posición, solo se toma el sku.
-  * Declara por cuantas posiciones debe recorrer el producto, aca lo consideramos como salto (jump), tiene que ser un 
-    numero positivo o negativo (no cero).
-    Una vez teniendo conocimiento de esto, en este módulo tenemos un CLI Command Custom, que requerirá de estos datos que hemos mencionado anteriormente, vea los siguientes ejemplos:
+For this, keep the following in mind:
+* COMMAND #1:
+    * You must declare which category the product position change should be applied to by inserting the category name.
+    * Declare a product to apply the position change to — only the SKU is required.
+    * Declare how many positions the product should move; this is referred to as a jump, and it must be a
+      positive or negative number (not zero).
+      With this in mind, this module includes a Custom CLI Command that will require the data mentioned above. See the following examples:
 
-    - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="-15"`
-    - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="1"`
-    - `bin/magento devlat:category:position --category="Watches" --sku="24-WG02" --jump="1"`
-* COMANDO #2:
-  * Debes declarar el nombre de la categoria  y el tipo que sera en base a que sera el 
-    reordenamiento de productos en una categoria.
-  * Tanto el nombre de la categoria como el tipo son REQUERIDOS.
-  * El uso es sencillo y un ejemplo a usar el comando es el siguiente:
-    - `bin/magento devlat:category:reorganize -c "Watches" --type="sku"`
-    - `bin/magento devlat:category:reorganize --category="Watches" --type="id"`
+        - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="-15"`
+        - `bin/magento devlat:category:position -c "Watches" --sku="24-WG02" --jump="1"`
+        - `bin/magento devlat:category:position --category="Watches" --sku="24-WG02" --jump="1"`
+* COMMAND #2:
+    * You must declare the category name and the type that will be the basis for
+      reordering the products within a category.
+    * Both the category name and the type are REQUIRED.
+    * Usage is straightforward. Here are some examples:
+        - `bin/magento devlat:category:reorganize -c "Watches" --type="sku"`
+        - `bin/magento devlat:category:reorganize --category="Watches" --type="id"`
 
 
 ### GraphQl
-Si deseas cambiar la posición de un producto, puedes hacerlo por medio de request GraphQl, ya que se desarrolló una mutación para poder cambiar la posición de un producto determinado en una categoría, toma en cuenta de 
-que el request que se hizo prueba es la siguiente:
+If you want to change a product's position, you can do so through a GraphQL request, as a mutation was developed to change the position of a specific product within a category. The request used for testing is the following:
 
 ```
 mutation setProductPos($category: String!, $sku: String!, $jump: Int!) {
@@ -94,7 +94,7 @@ mutation setProductPos($category: String!, $sku: String!, $jump: Int!) {
     }
 }
 ```
-Preste atención de que tenemos variables **category**, **skus** y **jump**. Estos son variables GraphQl que son nuestros datos de entrada en este caso:
+Note that we have the variables **category**, **sku**, and **jump**. These are GraphQL variables that serve as our input data:
 ```
 {
     "category": "Watches",
@@ -102,7 +102,7 @@ Preste atención de que tenemos variables **category**, **skus** y **jump**. Est
     "jump": "2"
 }
 ```
-Dando como salida el siguiente resultado bajo el formato que se dio en schema:
+Producing the following output in the format defined by the schema:
 ```
 {
     "data": {
@@ -117,30 +117,25 @@ Dando como salida el siguiente resultado bajo el formato que se dio en schema:
 }
 ```
 
-
-Dentro de ProductPosition tenemos el nodo **product** y tenemos los datos de category, que es el nombre de la categoria en el cual el producto esta, 
-luego se tiene el **sku** del producto, **newPosition** es el dato que contiene la posición que se actualizó.
+Inside ProductPosition we have the **product** node with the following fields: **category**, which is the name of the category the product belongs to; **sku**, the product's SKU; and **newPosition**, which holds the updated position value.
 
 ### Admin
-Puede dirigirse al admin: **Admin > Catalog > Categories** ahi vera una nueva seccion
-*llamado Reorganize Products*.
+Navigate to: **Admin > Catalog > Categories**, where you will find a new section
+called *Reorganize Products*.
 
-Cuando abra esa sección, podrá notar que aparece una lista de productos, ya desde ahí usted puede mover con
-el mouse un producto y posicionarla si quiere que vaya antes o despues de otro producto, simplemente es arrastrar y
-dejarlo en una posición que usted desee y cambiar el orden que usted desee  para el Product List Page de esa categoria
-despues de dar clic al boton de **Update Products Order**.
+When you open that section, you will see a list of products. From there, you can drag and drop a product to reposition it before or after another product. Simply drag it to the desired position to change the order for the Product List Page of that category, then click the **Update Products Order** button.
 
 ---
 
-## Actualizaciones
-Para la versión 1.3.1 se realizó las siguientes mejoras:
-* Mostrar mensaje de confirmacion despues de cambiar orden de productos en el admin.
-* Validacion de orden secuencial en posicion de productos en categoria.
+## Updates
+For version 1.3.2, the following improvements were made:
+* Fixed the problem when the user adds or removes a product in the admin, 
+in order to avoid conflicts in products positions.
 
 ---
 
-## Dudas o Preguntas
-Si tienes alguna duda o pregunta para poder ayudarte con el modulo, favor contactame por mis redes sociales, que te puedo responder a la brevedad posible :sunglasses::
+## Questions or Inquiries
+If you have any questions or need help with the module, feel free to reach out through my social media — I'll get back to you as soon as possible :sunglasses::
 
   <a href="https://www.linkedin.com/in/oscarrolandogamboa/">
       <img align="left" alt="Oscar Rolando Gamboa Acho | Linkedin" width="30px" src="https://github.com/SatYu26/SatYu26/blob/master/Assets/Linkedin.svg" />
@@ -151,6 +146,3 @@ Si tienes alguna duda o pregunta para poder ayudarte con el modulo, favor contac
   <a href="https://youtube.com/DevLatBo">
     <img align="left" alt="Oscar Rolando Gamboa Acho | Youtube" width="30px" src="https://user-images.githubusercontent.com/47686437/168548113-b3cd4206-3281-445b-b7c6-bc0a3251293d.png" />
   </a> &nbsp;&nbsp;
-
-
-
